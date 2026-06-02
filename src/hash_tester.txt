@@ -1,0 +1,11 @@
+baste something.else;
+
+biar salam.hamechi.*;
+
+
+age(!(dorost && ghalat)){}
+
+
+
+
+
