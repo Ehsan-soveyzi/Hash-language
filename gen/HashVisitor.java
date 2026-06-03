@@ -64,6 +64,72 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HashParser#classStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassStatement(HashParser.ClassStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#classMember}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassMember(HashParser.ClassMemberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#fieldDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldDeclaration(HashParser.FieldDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#classMethodDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassMethodDeclaration(HashParser.ClassMethodDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#constructorDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#thisAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisAssignment(HashParser.ThisAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#objectFieldAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#fieldAccess}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFieldAccess(HashParser.FieldAccessContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#thisFieldAccess}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisFieldAccess(HashParser.ThisFieldAccessContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#instantiationStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInstantiationStatement(HashParser.InstantiationStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#methodCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodCall(HashParser.MethodCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HashParser#switchStatements}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -219,6 +285,24 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrimaryExpression(HashParser.PrimaryExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#printStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintStatement(HashParser.PrintStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#inputStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputStatement(HashParser.InputStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#inputParameters}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputParameters(HashParser.InputParametersContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#type}.
 	 * @param ctx the parse tree

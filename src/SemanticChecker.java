@@ -1,16 +1,8 @@
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import java.util.*;
 
 public class SemanticChecker extends HashBaseListener {
-
-    private final Map<String, String> variables = new HashMap<>();
-    private final Map<String, FunctionInfo> functions = new HashMap<>();
-
-    private final Stack<String> functionReturnTypes = new Stack<>();
-    private final Stack<Boolean> functionHasReturn = new Stack<>();
-    private final Stack<Map<String, String>> variableSnapshots = new Stack<>();
-
-    private int loopDepth = 0;
-    private boolean hasErrors = false;
 
     private static class FunctionInfo {
         String returnType;
@@ -24,6 +16,31 @@ public class SemanticChecker extends HashBaseListener {
         }
     }
 
+    private static class ClassInfo {
+        String name;
+        Map<String, String> fields = new HashMap<>();
+        Map<String, FunctionInfo> methods = new HashMap<>();
+        FunctionInfo constructor;
+
+        ClassInfo(String name) {
+            this.name = name;
+        }
+    }
+
+    private final Map<String, String> variables = new HashMap<>();
+    private final Map<String, FunctionInfo> functions = new HashMap<>();
+
+    private final Stack<String> functionReturnTypes = new Stack<>();
+    private final Stack<Boolean> functionHasReturn = new Stack<>();
+    private final Stack<Map<String, String>> variableSnapshots = new Stack<>();
+
+    private int loopDepth = 0;
+    private boolean hasErrors = false;
+
+
+    private final Map<String, ClassInfo> classes = new HashMap<>();
+    private final Stack<String> currentClassStack = new Stack<>();
+
     public boolean hasErrors() {
         return hasErrors;
     }
@@ -31,6 +48,28 @@ public class SemanticChecker extends HashBaseListener {
     private void error(int line, String message) {
         hasErrors = true;
         System.out.println("Semantic Error line " + line + ": " + message);
+    }
+
+    @Override
+    public void enterConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx) {
+        enterCallableScope("hich", ctx.functionParameters());
+    }
+
+    @Override
+    public void exitConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx) {
+        exitCallableScope(ctx);
+    }
+
+
+    @Override
+    public void enterClassMethodDeclaration(HashParser.ClassMethodDeclarationContext ctx) {
+        String returnType = ctx.functionTypes().getText();
+        enterCallableScope(returnType, ctx.functionParameters());
+    }
+
+    @Override
+    public void exitClassMethodDeclaration(HashParser.ClassMethodDeclarationContext ctx) {
+        exitCallableScope(ctx);
     }
 
     // ------------------------------------------------------------
@@ -43,7 +82,64 @@ public class SemanticChecker extends HashBaseListener {
             if (statement.functionStatemnets() != null) {
                 registerFunctionSignature(statement.functionStatemnets());
             }
+
+            if (statement.classStatement() != null) {
+                registerClassSignature(statement.classStatement());
+            }
         }
+    }
+
+    private void registerClassSignature(HashParser.ClassStatementContext ctx) {
+        String className = ctx.IDENTIFIER().getText();
+
+        if (classes.containsKey(className)) {
+            error(ctx.start.getLine(), "Class '" + className + "' is already defined.");
+            return;
+        }
+
+        ClassInfo classInfo = new ClassInfo(className);
+
+        for (HashParser.ClassMemberContext member : ctx.classMember()) {
+            if (member.fieldDeclaration() != null) {
+                String fieldType = member.fieldDeclaration().type().getText();
+                String fieldName = member.fieldDeclaration().IDENTIFIER().getText();
+
+                if (classInfo.fields.containsKey(fieldName)) {
+                    error(member.start.getLine(), "Field '" + fieldName + "' is already defined in class '" + className + "'.");
+                }
+
+                classInfo.fields.put(fieldName, fieldType);
+            }
+
+            if (member.classMethodDeclaration() != null) {
+                HashParser.ClassMethodDeclarationContext method = member.classMethodDeclaration();
+
+                String methodName = method.IDENTIFIER().getText();
+                String returnType = method.functionTypes().getText();
+
+                FunctionInfo methodInfo = buildFunctionInfo(returnType, method.functionParameters());
+
+                if (classInfo.methods.containsKey(methodName)) {
+                    error(method.start.getLine(), "Method '" + methodName + "' is already defined in class '" + className + "'.");
+                }
+
+                classInfo.methods.put(methodName, methodInfo);
+            }
+
+            if (member.constructorDeclaration() != null) {
+                HashParser.ConstructorDeclarationContext constructor = member.constructorDeclaration();
+
+                String constructorName = constructor.IDENTIFIER().getText();
+
+                if (!constructorName.equals(className)) {
+                    error(constructor.start.getLine(), "Constructor name '" + constructorName + "' must be same as class name '" + className + "'.");
+                }
+
+                classInfo.constructor = buildFunctionInfo("hich", constructor.functionParameters());
+            }
+        }
+
+        classes.put(className, classInfo);
     }
 
     private void registerFunctionSignature(HashParser.FunctionStatemnetsContext ctx) {
@@ -100,42 +196,224 @@ public class SemanticChecker extends HashBaseListener {
             return;
         }
 
-        functionReturnTypes.push(info.returnType);
-        functionHasReturn.push(false);
+        enterCallableScope(info.returnType, ctx.functionParameters());
+    }
 
-        // Save variables before entering function.
-        variableSnapshots.push(new HashMap<>(variables));
+    @Override
+    public void enterObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx) {
+        String objectName = ctx.IDENTIFIER(0).getText();
+        String fieldName = ctx.IDENTIFIER(1).getText();
 
-        // Add function parameters as local variables.
-        if (ctx.functionParameters() != null) {
-            for (HashParser.FunctionParameterContext param : ctx.functionParameters().functionParameter()) {
-                String paramType = param.type().getText();
-                String paramName = param.IDENTIFIER().getText();
+        if (!variables.containsKey(objectName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Object '" + objectName + "' is not defined."
+            );
+            return;
+        }
 
-                variables.put(paramName, paramType);
-            }
+        String className = variables.get(objectName);
+
+        if (!classes.containsKey(className)) {
+            error(
+                    ctx.start.getLine(),
+                    "'" + objectName + "' is not an object of a known class."
+            );
+            return;
+        }
+
+        ClassInfo classInfo = classes.get(className);
+
+        if (!classInfo.fields.containsKey(fieldName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Field '" + fieldName + "' is not defined in class '" + className + "'."
+            );
+            return;
+        }
+
+        String fieldType = classInfo.fields.get(fieldName);
+        String expressionType = inferExpressionType(ctx.expression());
+
+        if (!isCompatible(fieldType, expressionType)) {
+            error(
+                    ctx.start.getLine(),
+                    "Cannot assign value of type " + expressionType +
+                            " to field '" + fieldName +
+                            "' of object '" + objectName +
+                            "' with type " + fieldType + "."
+            );
+        }
+    }
+
+    @Override
+    public void enterPrintStatement(HashParser.PrintStatementContext ctx) {
+        inferExpressionType(ctx.expression());
+    }
+
+    @Override
+    public void enterInputStatement(HashParser.InputStatementContext ctx) {
+        for(HashParser.InputParametersContext type : ctx.inputParameters()){
+            String variableName = type.IDENTIFIER().getText();
+            String typeName = type.type().getText();
+
+            variables.put(variableName, typeName);
         }
     }
 
     @Override
     public void exitFunctionStatemnets(HashParser.FunctionStatemnetsContext ctx) {
-        if (functionReturnTypes.isEmpty() || functionHasReturn.isEmpty() || variableSnapshots.isEmpty()) {
+        exitCallableScope(ctx);
+    }
+
+    @Override
+    public void enterInstantiationStatement(HashParser.InstantiationStatementContext ctx) {
+        String declaredClassName = ctx.IDENTIFIER(0).getText();
+        String objectName = ctx.IDENTIFIER(1).getText();
+        String newClassName = ctx.IDENTIFIER(2).getText();
+
+        if (!classes.containsKey(declaredClassName)) {
+            error(ctx.start.getLine(), "Class '" + declaredClassName + "' is not defined.");
             return;
         }
 
-        String returnType = functionReturnTypes.pop();
-        boolean hasReturn = functionHasReturn.pop();
-
-        if (!returnType.equals("hich") && !hasReturn) {
-            error(
-                    ctx.start.getLine(),
-                    "Function with return type " + returnType + " must have a return statement."
-            );
+        if (!classes.containsKey(newClassName)) {
+            error(ctx.start.getLine(), "Class '" + newClassName + "' is not defined.");
+            return;
         }
 
-        Map<String, String> previousVariables = variableSnapshots.pop();
-        variables.clear();
-        variables.putAll(previousVariables);
+        if (!declaredClassName.equals(newClassName)) {
+            error(ctx.start.getLine(), "Cannot assign object of class '" + newClassName + "' to variable of class '" + declaredClassName + "'.");
+            return;
+        }
+
+        ClassInfo classInfo = classes.get(declaredClassName);
+
+        List<HashParser.ExpressionContext> args =
+                ctx.argumentList() == null
+                        ? Collections.emptyList()
+                        : ctx.argumentList().expression();
+
+        if (classInfo.constructor == null) {
+            if (!args.isEmpty()) {
+                error(ctx.start.getLine(), "Class '" + declaredClassName + "' has no constructor but arguments were provided.");
+            }
+        } else {
+            checkArguments(ctx.start.getLine(), "constructor of class '" + declaredClassName + "'", classInfo.constructor, args);
+        }
+
+        variables.put(objectName, declaredClassName);
+    }
+
+
+    private void checkArguments(int line, String callableName, FunctionInfo info, List<HashParser.ExpressionContext> args) {
+        if (args.size() != info.paramTypes.size()) {
+            error(
+                    line,
+                    callableName + " expects " + info.paramTypes.size() +
+                            " arguments, but got " + args.size() + "."
+            );
+            return;
+        }
+
+        for (int i = 0; i < args.size(); i++) {
+            String expectedType = info.paramTypes.get(i);
+            String actualType = inferExpressionType(args.get(i));
+
+            if (!isCompatible(expectedType, actualType)) {
+                error(
+                        args.get(i).start.getLine(),
+                        "Argument " + (i + 1) + " of " + callableName +
+                                " must be " + expectedType + ", but got " + actualType + "."
+                );
+            }
+        }
+    }
+
+    @Override
+    public void enterClassStatement(HashParser.ClassStatementContext ctx) {
+        currentClassStack.push(ctx.IDENTIFIER().getText());
+    }
+
+    @Override
+    public void exitClassStatement(HashParser.ClassStatementContext ctx) {
+        currentClassStack.pop();
+    }
+
+
+    private String inferMethodCallType(HashParser.MethodCallContext ctx) {
+        String objectName = ctx.IDENTIFIER(0).getText();
+        String methodName = ctx.IDENTIFIER(1).getText();
+
+        if (!variables.containsKey(objectName)) {
+            error(ctx.start.getLine(), "Object '" + objectName + "' is not defined.");
+            return "unknown";
+        }
+
+        String className = variables.get(objectName);
+
+        if (!classes.containsKey(className)) {
+            error(ctx.start.getLine(), "'" + objectName + "' is not an object of a known class.");
+            return "unknown";
+        }
+
+        ClassInfo classInfo = classes.get(className);
+
+        if (!classInfo.methods.containsKey(methodName)) {
+            error(ctx.start.getLine(), "Method '" + methodName + "' is not defined in class '" + className + "'.");
+            return "unknown";
+        }
+
+        FunctionInfo methodInfo = classInfo.methods.get(methodName);
+
+        List<HashParser.ExpressionContext> args =
+                ctx.argumentList() == null
+                        ? Collections.emptyList()
+                        : ctx.argumentList().expression();
+
+        checkArguments(ctx.start.getLine(), "method '" + methodName + "'", methodInfo, args);
+
+        return methodInfo.returnType;
+    }
+
+
+    @Override
+    public void enterThisAssignment(HashParser.ThisAssignmentContext ctx) {
+        if (currentClassStack.isEmpty()) {
+            error(ctx.start.getLine(), "'in' can only be used inside a class.");
+            return;
+        }
+
+        String className = currentClassStack.peek();
+        ClassInfo classInfo = classes.get(className);
+
+        String fieldName = ctx.IDENTIFIER().getText();
+
+        if (!classInfo.fields.containsKey(fieldName)) {
+            error(ctx.start.getLine(), "Field '" + fieldName + "' is not defined in class '" + className + "'.");
+            return;
+        }
+
+        String fieldType = classInfo.fields.get(fieldName);
+        String expressionType = inferExpressionType(ctx.expression());
+
+        if (!isCompatible(fieldType, expressionType)) {
+            error(ctx.start.getLine(), "Cannot assign value of type " + expressionType + " to field '" + fieldName + "' of type " + fieldType + ".");
+        }
+    }
+
+    private FunctionInfo buildFunctionInfo(String returnType, HashParser.FunctionParametersContext params) {
+        List<String> paramTypes = new ArrayList<>();
+        List<String> paramNames = new ArrayList<>();
+
+        if (params != null) {
+            for (HashParser.FunctionParameterContext param : params.functionParameter()) {
+                paramTypes.add(param.type().getText());
+                paramNames.add(param.IDENTIFIER().getText());
+            }
+        }
+
+        return new FunctionInfo(returnType, paramTypes, paramNames);
     }
 
     // ------------------------------------------------------------
@@ -192,7 +470,13 @@ public class SemanticChecker extends HashBaseListener {
     // ------------------------------------------------------------
     @Override
     public void enterFunctionCallStatement(HashParser.FunctionCallStatementContext ctx) {
-        inferFunctionCallType(ctx.functionCall());
+        if (ctx.functionCall() != null) {
+            inferFunctionCallType(ctx.functionCall());
+        }
+
+        if (ctx.methodCall() != null) {
+            inferMethodCallType(ctx.methodCall());
+        }
     }
 
     private String inferFunctionCallType(HashParser.FunctionCallContext ctx) {
@@ -596,6 +880,17 @@ public class SemanticChecker extends HashBaseListener {
             return inferLiteral(ctx.literal());
         }
 
+        if (ctx.methodCall() != null) {
+            String returnType = inferMethodCallType(ctx.methodCall());
+
+            if (returnType.equals("hich")) {
+                error(ctx.start.getLine(), "Method with return type hich cannot be used as a value.");
+                return "unknown";
+            }
+
+            return returnType;
+        }
+
         if (ctx.functionCall() != null) {
             String returnType = inferFunctionCallType(ctx.functionCall());
 
@@ -608,6 +903,14 @@ public class SemanticChecker extends HashBaseListener {
             }
 
             return returnType;
+        }
+
+        if (ctx.thisFieldAccess() != null) {
+            return inferThisFieldAccessType(ctx.thisFieldAccess());
+        }
+
+        if (ctx.fieldAccess() != null) {
+            return inferFieldAccessType(ctx.fieldAccess());
         }
 
         if (ctx.IDENTIFIER() != null) {
@@ -658,5 +961,102 @@ public class SemanticChecker extends HashBaseListener {
 
     private boolean isNumeric(String type) {
         return type.equals("adad") || type.equals("ashari");
+    }
+
+
+    private void enterCallableScope(String returnType, HashParser.FunctionParametersContext params) {
+        functionReturnTypes.push(returnType);
+        functionHasReturn.push(false);
+
+        variableSnapshots.push(new HashMap<>(variables));
+
+        if (params != null) {
+            Set<String> seenParams = new HashSet<>();
+
+            for (HashParser.FunctionParameterContext param : params.functionParameter()) {
+                String paramType = param.type().getText();
+                String paramName = param.IDENTIFIER().getText();
+
+                if (seenParams.contains(paramName)) {
+                    error(
+                            param.start.getLine(),
+                            "Parameter '" + paramName + "' is already defined in this callable."
+                    );
+                }
+
+                seenParams.add(paramName);
+                variables.put(paramName, paramType);
+            }
+        }
+    }
+
+    private void exitCallableScope(ParserRuleContext ctx) {
+        if (functionReturnTypes.isEmpty() || functionHasReturn.isEmpty() || variableSnapshots.isEmpty()) {
+            return;
+        }
+
+        String returnType = functionReturnTypes.pop();
+        boolean hasReturn = functionHasReturn.pop();
+
+        if (!returnType.equals("hich") && !hasReturn) {
+            error(
+                    ctx.start.getLine(),
+                    "Function with return type " + returnType + " must have a return statement."
+            );
+        }
+
+        Map<String, String> previousVariables = variableSnapshots.pop();
+        variables.clear();
+        variables.putAll(previousVariables);
+    }
+
+    private String inferThisFieldAccessType(HashParser.ThisFieldAccessContext ctx) {
+        if (currentClassStack.isEmpty()) {
+            error(ctx.start.getLine(), "'in' can only be used inside a class.");
+            return "unknown";
+        }
+
+        String className = currentClassStack.peek();
+        ClassInfo classInfo = classes.get(className);
+
+        if (classInfo == null) {
+            error(ctx.start.getLine(), "Current class '" + className + "' is not registered.");
+            return "unknown";
+        }
+
+        String fieldName = ctx.IDENTIFIER().getText();
+
+        if (!classInfo.fields.containsKey(fieldName)) {
+            error(ctx.start.getLine(), "Field '" + fieldName + "' is not defined in class '" + className + "'.");
+            return "unknown";
+        }
+
+        return classInfo.fields.get(fieldName);
+    }
+
+    private String inferFieldAccessType(HashParser.FieldAccessContext ctx) {
+        String objectName = ctx.IDENTIFIER(0).getText();
+        String fieldName = ctx.IDENTIFIER(1).getText();
+
+        if (!variables.containsKey(objectName)) {
+            error(ctx.start.getLine(), "Object '" + objectName + "' is not defined.");
+            return "unknown";
+        }
+
+        String className = variables.get(objectName);
+
+        if (!classes.containsKey(className)) {
+            error(ctx.start.getLine(), "'" + objectName + "' is not an object of a known class.");
+            return "unknown";
+        }
+
+        ClassInfo classInfo = classes.get(className);
+
+        if (!classInfo.fields.containsKey(fieldName)) {
+            error(ctx.start.getLine(), "Field '" + fieldName + "' is not defined in class '" + className + "'.");
+            return "unknown";
+        }
+
+        return classInfo.fields.get(fieldName);
     }
 }

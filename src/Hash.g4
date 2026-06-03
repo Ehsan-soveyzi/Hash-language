@@ -9,6 +9,7 @@ startState : supportedStatements* EOF;
 
 supportedStatements
     : assignmentsStatemetns
+    | definedAssignment
     | moduleStatements
     | importStatements
     | ifElseStatments
@@ -16,9 +17,14 @@ supportedStatements
     | switchStatements
     | functionStatemnets
     | returnStatement
-    | definedAssignment
     | functionCallStatement
+    | classStatement
+    | instantiationStatement
+    | thisAssignment
+    | objectFieldAssignment
+    | printStatement
     | goToStatements
+    | inputStatement
     ;
 
 
@@ -47,6 +53,7 @@ returnStatement
 
 functionCallStatement
     : functionCall SEMICOLEN
+    | methodCall SEMICOLEN
     ;
 
 functionCall
@@ -55,6 +62,53 @@ functionCall
 
 argumentList
     : expression (COMMA expression)*
+    ;
+
+classStatement
+    : CLASS IDENTIFIER OB classMember* CB
+    ;
+
+classMember
+    : fieldDeclaration
+    | classMethodDeclaration
+    | constructorDeclaration
+    ;
+
+fieldDeclaration
+    : type IDENTIFIER SEMICOLEN
+    ;
+
+classMethodDeclaration
+    : DEFINE functionTypes IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
+    ;
+
+constructorDeclaration
+    : DEFINE IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
+    ;
+
+thisAssignment
+    : THIS DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
+
+objectFieldAssignment
+    : IDENTIFIER DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
+
+fieldAccess
+    : IDENTIFIER DOT IDENTIFIER
+    ;
+
+thisFieldAccess
+    : THIS DOT IDENTIFIER
+    ;
+
+instantiationStatement
+    : IDENTIFIER IDENTIFIER ASSIGNMENT NEW IDENTIFIER OP argumentList? CP SEMICOLEN
+    ;
+
+
+methodCall
+    : IDENTIFIER DOT IDENTIFIER OP argumentList? CP
     ;
 
 switchStatements
@@ -117,6 +171,10 @@ loopBodyStatement
     | goToStatements
     | returnStatement
     | functionCallStatement
+    | instantiationStatement
+    | thisAssignment
+    | objectFieldAssignment
+    | printStatement
     ;
 
 ifElseStatmentsInLoop
@@ -172,9 +230,24 @@ postfixExpression
 
 primaryExpression
     : literal
+    | methodCall
     | functionCall
+    | fieldAccess
+    | thisFieldAccess
     | IDENTIFIER
     | OP expression CP
+    ;
+
+printStatement
+    : PRINT OP expression CP SEMICOLEN
+    ;
+
+inputStatement
+    : INPUT OP inputParameters (COMMA inputParameters)* CP SEMICOLEN
+    ;
+
+inputParameters
+    : type IDENTIFIER
     ;
 
 type

@@ -97,6 +97,116 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link HashParser#classStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassStatement(HashParser.ClassStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#classStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassStatement(HashParser.ClassStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassMember(HashParser.ClassMemberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassMember(HashParser.ClassMemberContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#fieldDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldDeclaration(HashParser.FieldDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#fieldDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldDeclaration(HashParser.FieldDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#classMethodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassMethodDeclaration(HashParser.ClassMethodDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#classMethodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassMethodDeclaration(HashParser.ClassMethodDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#constructorDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#constructorDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#thisAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterThisAssignment(HashParser.ThisAssignmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#thisAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitThisAssignment(HashParser.ThisAssignmentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#objectFieldAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#objectFieldAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#fieldAccess}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldAccess(HashParser.FieldAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#fieldAccess}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldAccess(HashParser.FieldAccessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#thisFieldAccess}.
+	 * @param ctx the parse tree
+	 */
+	void enterThisFieldAccess(HashParser.ThisFieldAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#thisFieldAccess}.
+	 * @param ctx the parse tree
+	 */
+	void exitThisFieldAccess(HashParser.ThisFieldAccessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#instantiationStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterInstantiationStatement(HashParser.InstantiationStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#instantiationStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitInstantiationStatement(HashParser.InstantiationStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#methodCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodCall(HashParser.MethodCallContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#methodCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodCall(HashParser.MethodCallContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link HashParser#switchStatements}.
 	 * @param ctx the parse tree
 	 */
@@ -356,6 +466,36 @@ public interface HashListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrimaryExpression(HashParser.PrimaryExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#printStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrintStatement(HashParser.PrintStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#printStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrintStatement(HashParser.PrintStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#inputStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterInputStatement(HashParser.InputStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#inputStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitInputStatement(HashParser.InputStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#inputParameters}.
+	 * @param ctx the parse tree
+	 */
+	void enterInputParameters(HashParser.InputParametersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#inputParameters}.
+	 * @param ctx the parse tree
+	 */
+	void exitInputParameters(HashParser.InputParametersContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HashParser#type}.
 	 * @param ctx the parse tree
