@@ -7,8 +7,19 @@ startState : supportedStatements* EOF;
 //supportedStatements : ifElseStatments | assignmentsStatemetns | moduleStatements | importStatements | loopStatements
 //    | switchStatements | functionStatemnets | classStatements | instantiationStatements | exceptionStatements;
 
-supportedStatements : assignmentsStatemetns | moduleStatements | importStatements | ifElseStatments | loopStatements
-    | switchStatements | functionStatemnets;
+supportedStatements
+    : assignmentsStatemetns
+    | moduleStatements
+    | importStatements
+    | ifElseStatments
+    | loopStatements
+    | switchStatements
+    | functionStatemnets
+    | returnStatement
+    | definedAssignment
+    | functionCallStatement
+    | goToStatements
+    ;
 
 
 //exceptionStatements: ' ';
@@ -19,158 +30,191 @@ supportedStatements : assignmentsStatemetns | moduleStatements | importStatement
 //
 
 functionStatemnets
-    : DEFINE functionTypesApproaches
+    : DEFINE functionTypes IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
     ;
 
-
-functionTypesApproaches
-    : intReturn
-    | floatReturn
-    | boolReturn
-    | charReturn
-    | stringReturn
-    | voidReturn
+functionParameters
+    : functionParameter (COMMA functionParameter)*
     ;
 
-intReturn
-    : INT IDENTIFIER OP functionParameters? CP OB intFunctionBody CB
+functionParameter
+    : type IDENTIFIER
     ;
 
-floatReturn
-    : FLOAT IDENTIFIER OP functionParameters? CP OB floatFunctionBody CB
+returnStatement
+    : RETURN expression? SEMICOLEN
     ;
 
-boolReturn
-    : BOOLEAN IDENTIFIER OP functionParameters? CP OB boolFunctionBody CB
+functionCallStatement
+    : functionCall SEMICOLEN
     ;
 
-charReturn
-    : CHAR IDENTIFIER OP functionParameters? CP OB charFunctionBody CB
+functionCall
+    : IDENTIFIER OP argumentList? CP
     ;
 
-stringReturn
-    : STRING IDENTIFIER OP functionParameters? CP OB stringFunctionBody CB
+argumentList
+    : expression (COMMA expression)*
     ;
 
-voidReturn
-    : VOID IDENTIFIER OP functionParameters? CP OB voidFunctionBody CB
+switchStatements
+    : SWITCH OP IDENTIFIER CP OB caseStatements* (DEFAULT OB supportedStatements* CB)? CB
     ;
-functionParameters : type IDENTIFIER (COMMA functionParameters)*;
 
-intFunctionBody : intFunctionStatement* intReturnStatement intFunctionStatement*;
+caseStatements
+    : CASE literal OB supportedStatements* CB
+    ;
 
-floatFunctionBody : floatFunctionStatement* floatReturnStatement floatFunctionStatement*;
+loopStatements
+    : whileStatement
+    | forStatement
+    ;
 
-boolFunctionBody : boolFunctionStatement* boolReturnStatement boolFunctionStatement*;
+forStatement
+    : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB loopBodyStatement* CB
+    ;
 
-charFunctionBody : charFunctionStatement* charReturnStatement charFunctionStatement*;
+whileStatement
+    : WHILE OP condition CP OB loopBodyStatement* CB
+    ;
 
-stringFunctionBody: stringFunctionStatement* stringReturnStatement stringFunctionStatement*;
+goToStatements
+    : (BREAK | CONTINUE) SEMICOLEN
+    ;
 
-voidFunctionBody : voidFunctionStatement*;
+importStatements
+    : IMPORT moduleName SEMICOLEN
+    ;
 
+moduleStatements
+    : MODULE packageName SEMICOLEN
+    ;
 
-intFunctionStatement : assignmentsStatemetns | ifElseStatments | loopStatements | switchStatements | intReturnStatement;
+assignmentsStatemetns
+    : type IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
 
-floatFunctionStatement : assignmentsStatemetns | ifElseStatments | loopStatements | switchStatements | floatReturnStatement;
+definedAssignment
+    : update SEMICOLEN
+    ;
 
-boolFunctionStatement: assignmentsStatemetns | ifElseStatments | loopStatements | switchStatements | boolReturnStatement;
+ifElseStatments
+    : IF OP condition CP OB supportedStatements* CB (ELSE OB supportedStatements* CB)?
+    ;
 
-charFunctionStatement: assignmentsStatemetns | moduleStatements | importStatements | ifElseStatments | loopStatements | switchStatements | charReturnStatement;
+condition
+    : expression
+    ;
 
-stringFunctionStatement: assignmentsStatemetns | moduleStatements | importStatements | ifElseStatments | loopStatements | switchStatements | stringReturnStatement;
-
-voidFunctionStatement: assignmentsStatemetns | moduleStatements | importStatements | ifElseStatments | loopStatements | switchStatements | voidReturnStatement;
-
-intReturnStatement : RETURN INT_LITERAL SEMICOLEN;
-
-floatReturnStatement : RETURN FLOAT_LITERAL SEMICOLEN;
-
-boolReturnStatement : RETURN booleanLiteral SEMICOLEN;
-
-charReturnStatement : RETURN CHAR_LITERAL SEMICOLEN;
-
-stringReturnStatement : RETURN STRING_LITERAL SEMICOLEN;
-
-voidReturnStatement : RETURN SEMICOLEN;
-
-switchStatements: SWITCH OP (IDENTIFIER) CP OB (caseStatements)* (DEFAULT OB (supportedStatements)* CB)? CB;
-
-caseStatements : CASE (literal) OB (supportedStatements)* CB;
-//
-loopStatements: whileStatement | forStatement;
-//
-
-forStatement : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB (loopBodyStatement)* CB;
-
-whileStatement : WHILE OP condition CP OB (loopBodyStatement)* CB;
-
-goToStatements : (BREAK | CONTINUE) SEMICOLEN;
-
-importStatements: IMPORT moduleName SEMICOLEN;
-
-moduleStatements: MODULE packageName SEMICOLEN;
-
-assignmentsStatemetns: type IDENTIFIER ASSIGNMENT expression SEMICOLEN;
-
-ifElseStatments: IF OP condition CP OB (supportedStatements)* CB (ELSE OB (supportedStatements)* CB)?;
-
-
-condition : expression;
-
-loopBodyStatement // this define just for handling goTO commands in if statement in the loop
+loopBodyStatement
     : assignmentsStatemetns
+    | definedAssignment
     | moduleStatements
     | importStatements
     | ifElseStatmentsInLoop
     | loopStatements
+    | switchStatements
     | goToStatements
+    | returnStatement
+    | functionCallStatement
+    ;
+
+ifElseStatmentsInLoop
+    : IF OP condition CP OB loopBodyStatement* CB (ELSE OB loopBodyStatement* CB)?
+    ;
+
+update
+    : IDENTIFIER ASSIGNMENT expression
     ;
 
 
-ifElseStatmentsInLoop : IF OP condition CP OB (loopBodyStatement)* CB (ELSE OB (loopBodyStatement)* CB)?;
-
-update : IDENTIFIER ASSIGNMENT expression;
-
 // main grammar handeling
-expression : logicalOrExpression;
+expression
+    : logicalOrExpression
+    ;
 
-logicalOrExpression : logicalAndExpression (LOGICAL_OR logicalAndExpression)*;
+logicalOrExpression
+    : logicalAndExpression (LOGICAL_OR logicalAndExpression)*
+    ;
 
-logicalAndExpression : equalityExpression (LOGICAL_AND equalityExpression)*;
+logicalAndExpression
+    : equalityExpression (LOGICAL_AND equalityExpression)*
+    ;
 
-equalityExpression : comparitioanlExpression (EQUALITY comparitioanlExpression)?;
+equalityExpression
+    : comparitioanlExpression (EQUALITY comparitioanlExpression)?
+    ;
 
-comparitioanlExpression : additiveExpression (COMPARITIONAL additiveExpression)?;
+comparitioanlExpression
+    : additiveExpression (COMPARITIONAL additiveExpression)?
+    ;
 
-additiveExpression : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*;
+additiveExpression
+    : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
+    ;
 
-multiplicativeExpression : unaryExpression ((MULTIPLICATION | DIVISION | MODULO) unaryExpression)*;
+multiplicativeExpression
+    : unaryExpression ((MULTIPLICATION | DIVISION | MODULO) unaryExpression)*
+    ;
 
-unaryExpression : (NOT | PLUS | MINUS | INCREEMENT | DECREEMENT) unaryExpression | powerExpression;
+unaryExpression
+    : (NOT | PLUS | MINUS | INCREEMENT | DECREEMENT) unaryExpression
+    | powerExpression
+    ;
 
-powerExpression : postfixExpression (POWER unaryExpression)?;
+powerExpression
+    : postfixExpression (POWER unaryExpression)?
+    ;
 
-postfixExpression : primaryExpression (INCREEMENT | DECREEMENT)?;
+postfixExpression
+    : primaryExpression (INCREEMENT | DECREEMENT)?
+    ;
 
-primaryExpression : literal | IDENTIFIER | OP expression CP;
+primaryExpression
+    : literal
+    | functionCall
+    | IDENTIFIER
+    | OP expression CP
+    ;
 
-type : INT | FLOAT | BOOLEAN | CHAR | STRING;
+type
+    : INT
+    | FLOAT
+    | BOOLEAN
+    | CHAR
+    | STRING
+    ;
 
-literal : INT_LITERAL | FLOAT_LITERAL | booleanLiteral | STRING_LITERAL | CHAR_LITERAL | NULL;
+functionTypes
+    : INT
+    | FLOAT
+    | BOOLEAN
+    | CHAR
+    | STRING
+    | VOID
+    ;
 
-packageName : IDENTIFIER (DOT IDENTIFIER)*;
+literal
+    : INT_LITERAL
+    | FLOAT_LITERAL
+    | booleanLiteral
+    | STRING_LITERAL
+    | CHAR_LITERAL
+    | NULL
+    ;
 
-moduleName : packageName (DOT MULTIPLICATION)?;
+packageName
+    : IDENTIFIER (DOT IDENTIFIER)*
+    ;
 
-booleanLiteral : TRUE | FALSE;
+moduleName
+    : packageName (DOT MULTIPLICATION)?
+    ;
 
-
-
-
-
-
-
+booleanLiteral
+    : TRUE
+    | FALSE
+    ;
 
 
 // supported keywords(lexer rulles)
@@ -208,10 +252,6 @@ PRINT : 'bechap';
 INPUT : 'bekhan';
 
 
-
-
-
-
 // rest supported words(not known as key words)
 OP : '(';
 CP : ')';
@@ -235,7 +275,6 @@ LOGICAL_AND : '&&';
 INCREEMENT : '++';
 DECREEMENT : '--';
 
-
 INT_LITERAL : [0-9]+;
 FLOAT_LITERAL : [0-9]+ '.' [0-9]+;
 STRING_LITERAL : '"' ~["\r\n]* '"';
@@ -244,21 +283,9 @@ CHAR_LITERAL : '\'' . '\'';
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]*;
 
 
-
-
-
-
-
-
-
-
-
-
 // AGNORABLE_STATEMENTS
 LINE_COMMENT : '//' ~[\r\n]* -> skip;
 
-///* one */ code /* two */ -> the reason why we use ? after .*
-BLOCK_COMMENT : '/*' .*? '*/' -> skip; // dot assginments in regex means all the possible supported characters
+BLOCK_COMMENT : '/*' .*? '*/' -> skip;
 
 WS : [ \t\r\n]+ -> skip;
-

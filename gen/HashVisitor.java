@@ -28,161 +28,41 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionStatemnets(HashParser.FunctionStatemnetsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#functionTypesApproaches}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunctionTypesApproaches(HashParser.FunctionTypesApproachesContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#intReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntReturn(HashParser.IntReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#floatReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFloatReturn(HashParser.FloatReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#boolReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBoolReturn(HashParser.BoolReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#charReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharReturn(HashParser.CharReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#stringReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringReturn(HashParser.StringReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#voidReturn}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVoidReturn(HashParser.VoidReturnContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link HashParser#functionParameters}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFunctionParameters(HashParser.FunctionParametersContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#intFunctionBody}.
+	 * Visit a parse tree produced by {@link HashParser#functionParameter}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIntFunctionBody(HashParser.IntFunctionBodyContext ctx);
+	T visitFunctionParameter(HashParser.FunctionParameterContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#floatFunctionBody}.
+	 * Visit a parse tree produced by {@link HashParser#returnStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFloatFunctionBody(HashParser.FloatFunctionBodyContext ctx);
+	T visitReturnStatement(HashParser.ReturnStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#boolFunctionBody}.
+	 * Visit a parse tree produced by {@link HashParser#functionCallStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBoolFunctionBody(HashParser.BoolFunctionBodyContext ctx);
+	T visitFunctionCallStatement(HashParser.FunctionCallStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#charFunctionBody}.
+	 * Visit a parse tree produced by {@link HashParser#functionCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCharFunctionBody(HashParser.CharFunctionBodyContext ctx);
+	T visitFunctionCall(HashParser.FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#stringFunctionBody}.
+	 * Visit a parse tree produced by {@link HashParser#argumentList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStringFunctionBody(HashParser.StringFunctionBodyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#voidFunctionBody}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVoidFunctionBody(HashParser.VoidFunctionBodyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#intFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntFunctionStatement(HashParser.IntFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#floatFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFloatFunctionStatement(HashParser.FloatFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#boolFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBoolFunctionStatement(HashParser.BoolFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#charFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharFunctionStatement(HashParser.CharFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#stringFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringFunctionStatement(HashParser.StringFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#voidFunctionStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVoidFunctionStatement(HashParser.VoidFunctionStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#intReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntReturnStatement(HashParser.IntReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#floatReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFloatReturnStatement(HashParser.FloatReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#boolReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBoolReturnStatement(HashParser.BoolReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#charReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharReturnStatement(HashParser.CharReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#stringReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringReturnStatement(HashParser.StringReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#voidReturnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVoidReturnStatement(HashParser.VoidReturnStatementContext ctx);
+	T visitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#switchStatements}.
 	 * @param ctx the parse tree
@@ -237,6 +117,12 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#definedAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefinedAssignment(HashParser.DefinedAssignmentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#ifElseStatments}.
 	 * @param ctx the parse tree
@@ -339,6 +225,12 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitType(HashParser.TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#functionTypes}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionTypes(HashParser.FunctionTypesContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#literal}.
 	 * @param ctx the parse tree

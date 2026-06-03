@@ -1,11 +1,8 @@
-baste something.else;
+baste somthing;
 
-biar salam.hamechi.*;
+biar as.*;
 
-
-age(!(dorost && ghalat)){}
-
-
+adad x;
 
 
 

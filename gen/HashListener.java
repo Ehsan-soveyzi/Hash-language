@@ -37,76 +37,6 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitFunctionStatemnets(HashParser.FunctionStatemnetsContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#functionTypesApproaches}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunctionTypesApproaches(HashParser.FunctionTypesApproachesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#functionTypesApproaches}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunctionTypesApproaches(HashParser.FunctionTypesApproachesContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#intReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntReturn(HashParser.IntReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#intReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntReturn(HashParser.IntReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#floatReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterFloatReturn(HashParser.FloatReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#floatReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitFloatReturn(HashParser.FloatReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#boolReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolReturn(HashParser.BoolReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#boolReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolReturn(HashParser.BoolReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#charReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharReturn(HashParser.CharReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#charReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharReturn(HashParser.CharReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#stringReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringReturn(HashParser.StringReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#stringReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringReturn(HashParser.StringReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#voidReturn}.
-	 * @param ctx the parse tree
-	 */
-	void enterVoidReturn(HashParser.VoidReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#voidReturn}.
-	 * @param ctx the parse tree
-	 */
-	void exitVoidReturn(HashParser.VoidReturnContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link HashParser#functionParameters}.
 	 * @param ctx the parse tree
 	 */
@@ -117,185 +47,55 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitFunctionParameters(HashParser.FunctionParametersContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#intFunctionBody}.
+	 * Enter a parse tree produced by {@link HashParser#functionParameter}.
 	 * @param ctx the parse tree
 	 */
-	void enterIntFunctionBody(HashParser.IntFunctionBodyContext ctx);
+	void enterFunctionParameter(HashParser.FunctionParameterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HashParser#intFunctionBody}.
+	 * Exit a parse tree produced by {@link HashParser#functionParameter}.
 	 * @param ctx the parse tree
 	 */
-	void exitIntFunctionBody(HashParser.IntFunctionBodyContext ctx);
+	void exitFunctionParameter(HashParser.FunctionParameterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#floatFunctionBody}.
+	 * Enter a parse tree produced by {@link HashParser#returnStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterFloatFunctionBody(HashParser.FloatFunctionBodyContext ctx);
+	void enterReturnStatement(HashParser.ReturnStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HashParser#floatFunctionBody}.
+	 * Exit a parse tree produced by {@link HashParser#returnStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitFloatFunctionBody(HashParser.FloatFunctionBodyContext ctx);
+	void exitReturnStatement(HashParser.ReturnStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#boolFunctionBody}.
+	 * Enter a parse tree produced by {@link HashParser#functionCallStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterBoolFunctionBody(HashParser.BoolFunctionBodyContext ctx);
+	void enterFunctionCallStatement(HashParser.FunctionCallStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HashParser#boolFunctionBody}.
+	 * Exit a parse tree produced by {@link HashParser#functionCallStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitBoolFunctionBody(HashParser.BoolFunctionBodyContext ctx);
+	void exitFunctionCallStatement(HashParser.FunctionCallStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#charFunctionBody}.
+	 * Enter a parse tree produced by {@link HashParser#functionCall}.
 	 * @param ctx the parse tree
 	 */
-	void enterCharFunctionBody(HashParser.CharFunctionBodyContext ctx);
+	void enterFunctionCall(HashParser.FunctionCallContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HashParser#charFunctionBody}.
+	 * Exit a parse tree produced by {@link HashParser#functionCall}.
 	 * @param ctx the parse tree
 	 */
-	void exitCharFunctionBody(HashParser.CharFunctionBodyContext ctx);
+	void exitFunctionCall(HashParser.FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#stringFunctionBody}.
+	 * Enter a parse tree produced by {@link HashParser#argumentList}.
 	 * @param ctx the parse tree
 	 */
-	void enterStringFunctionBody(HashParser.StringFunctionBodyContext ctx);
+	void enterArgumentList(HashParser.ArgumentListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HashParser#stringFunctionBody}.
+	 * Exit a parse tree produced by {@link HashParser#argumentList}.
 	 * @param ctx the parse tree
 	 */
-	void exitStringFunctionBody(HashParser.StringFunctionBodyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#voidFunctionBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterVoidFunctionBody(HashParser.VoidFunctionBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#voidFunctionBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitVoidFunctionBody(HashParser.VoidFunctionBodyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#intFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntFunctionStatement(HashParser.IntFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#intFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntFunctionStatement(HashParser.IntFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#floatFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterFloatFunctionStatement(HashParser.FloatFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#floatFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitFloatFunctionStatement(HashParser.FloatFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#boolFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolFunctionStatement(HashParser.BoolFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#boolFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolFunctionStatement(HashParser.BoolFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#charFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharFunctionStatement(HashParser.CharFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#charFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharFunctionStatement(HashParser.CharFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#stringFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringFunctionStatement(HashParser.StringFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#stringFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringFunctionStatement(HashParser.StringFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#voidFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterVoidFunctionStatement(HashParser.VoidFunctionStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#voidFunctionStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitVoidFunctionStatement(HashParser.VoidFunctionStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#intReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntReturnStatement(HashParser.IntReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#intReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntReturnStatement(HashParser.IntReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#floatReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterFloatReturnStatement(HashParser.FloatReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#floatReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitFloatReturnStatement(HashParser.FloatReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#boolReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolReturnStatement(HashParser.BoolReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#boolReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolReturnStatement(HashParser.BoolReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#charReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharReturnStatement(HashParser.CharReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#charReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharReturnStatement(HashParser.CharReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#stringReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringReturnStatement(HashParser.StringReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#stringReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringReturnStatement(HashParser.StringReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#voidReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterVoidReturnStatement(HashParser.VoidReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#voidReturnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitVoidReturnStatement(HashParser.VoidReturnStatementContext ctx);
+	void exitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HashParser#switchStatements}.
 	 * @param ctx the parse tree
@@ -386,6 +186,16 @@ public interface HashListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#definedAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefinedAssignment(HashParser.DefinedAssignmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#definedAssignment}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefinedAssignment(HashParser.DefinedAssignmentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HashParser#ifElseStatments}.
 	 * @param ctx the parse tree
@@ -556,6 +366,16 @@ public interface HashListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitType(HashParser.TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#functionTypes}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionTypes(HashParser.FunctionTypesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#functionTypes}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionTypes(HashParser.FunctionTypesContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HashParser#literal}.
 	 * @param ctx the parse tree
