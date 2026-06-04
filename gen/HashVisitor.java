@@ -22,11 +22,125 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSupportedStatements(HashParser.SupportedStatementsContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HashParser#importStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImportStatements(HashParser.ImportStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#moduleStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModuleStatements(HashParser.ModuleStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#definedAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefinedAssignment(HashParser.DefinedAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#assignmentsStatemetns}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#ifElseStatments}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfElseStatments(HashParser.IfElseStatmentsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#loopStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLoopStatements(HashParser.LoopStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#goToStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGoToStatements(HashParser.GoToStatementsContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HashParser#functionStatemnets}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFunctionStatemnets(HashParser.FunctionStatemnetsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#functionCallStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionCallStatement(HashParser.FunctionCallStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#returnStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStatement(HashParser.ReturnStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#switchStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSwitchStatements(HashParser.SwitchStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#classStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassStatement(HashParser.ClassStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#thisAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisAssignment(HashParser.ThisAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#instantiationStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInstantiationStatement(HashParser.InstantiationStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#objectFieldAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#printStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintStatement(HashParser.PrintStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#inputStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputStatement(HashParser.InputStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#exceptionStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExceptionStatements(HashParser.ExceptionStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#throwsException}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThrowsException(HashParser.ThrowsExceptionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#customExceptionStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCustomExceptionStatement(HashParser.CustomExceptionStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#functionParameters}.
 	 * @param ctx the parse tree
@@ -40,35 +154,59 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionParameter(HashParser.FunctionParameterContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#returnStatement}.
+	 * Visit a parse tree produced by {@link HashParser#catchClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitReturnStatement(HashParser.ReturnStatementContext ctx);
+	T visitCatchClause(HashParser.CatchClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#functionCallStatement}.
+	 * Visit a parse tree produced by {@link HashParser#finallyClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionCallStatement(HashParser.FunctionCallStatementContext ctx);
+	T visitFinallyClause(HashParser.FinallyClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#functionCall}.
+	 * Visit a parse tree produced by {@link HashParser#fieldAccess}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionCall(HashParser.FunctionCallContext ctx);
+	T visitFieldAccess(HashParser.FieldAccessContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#argumentList}.
+	 * Visit a parse tree produced by {@link HashParser#thisFieldAccess}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArgumentList(HashParser.ArgumentListContext ctx);
+	T visitThisFieldAccess(HashParser.ThisFieldAccessContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#classStatement}.
+	 * Visit a parse tree produced by {@link HashParser#exceptionType}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitClassStatement(HashParser.ClassStatementContext ctx);
+	T visitExceptionType(HashParser.ExceptionTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#methodCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodCall(HashParser.MethodCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#caseStatements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCaseStatements(HashParser.CaseStatementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#forStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForStatement(HashParser.ForStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#whileStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhileStatement(HashParser.WhileStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#classMember}.
 	 * @param ctx the parse tree
@@ -94,113 +232,23 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConstructorDeclaration(HashParser.ConstructorDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#thisAssignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitThisAssignment(HashParser.ThisAssignmentContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#objectFieldAssignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectFieldAssignment(HashParser.ObjectFieldAssignmentContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#fieldAccess}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFieldAccess(HashParser.FieldAccessContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#thisFieldAccess}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitThisFieldAccess(HashParser.ThisFieldAccessContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#instantiationStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInstantiationStatement(HashParser.InstantiationStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#methodCall}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMethodCall(HashParser.MethodCallContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#switchStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSwitchStatements(HashParser.SwitchStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#caseStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCaseStatements(HashParser.CaseStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#loopStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLoopStatements(HashParser.LoopStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#forStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForStatement(HashParser.ForStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#whileStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhileStatement(HashParser.WhileStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#goToStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGoToStatements(HashParser.GoToStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#importStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitImportStatements(HashParser.ImportStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#moduleStatements}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitModuleStatements(HashParser.ModuleStatementsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#assignmentsStatemetns}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#definedAssignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDefinedAssignment(HashParser.DefinedAssignmentContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#ifElseStatments}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfElseStatments(HashParser.IfElseStatmentsContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link HashParser#condition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCondition(HashParser.ConditionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#functionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionCall(HashParser.FunctionCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#argumentList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#loopBodyStatement}.
 	 * @param ctx the parse tree
@@ -285,18 +333,6 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrimaryExpression(HashParser.PrimaryExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#printStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrintStatement(HashParser.PrintStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#inputStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInputStatement(HashParser.InputStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#inputParameters}.
 	 * @param ctx the parse tree

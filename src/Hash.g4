@@ -1,44 +1,128 @@
 grammar Hash;
 
+/*    ............. Start Way ....................... */
 startState : supportedStatements* EOF;
 
 
-// supported statements(parser rulles)
-//supportedStatements : ifElseStatments | assignmentsStatemetns | moduleStatements | importStatements | loopStatements
-//    | switchStatements | functionStatemnets | classStatements | instantiationStatements | exceptionStatements;
 
+/*   ...............  supported statementes  ................ */
 supportedStatements
-    : assignmentsStatemetns
-    | definedAssignment
-    | moduleStatements
-    | importStatements
-    | ifElseStatments
-    | loopStatements
-    | switchStatements
-    | functionStatemnets
-    | returnStatement
-    | functionCallStatement
-    | classStatement
-    | instantiationStatement
-    | thisAssignment
+    : assignmentsStatemetns // type identifier = expression ;
+    | definedAssignment // means like x = 1; x++ , ...
+    | moduleStatements // baste somthing
+    | importStatements // biar somthing.*
+    | ifElseStatments // age vagarna
+    | loopStatements // ta() ... & baraye() ...
+    | switchStatements // entekhab -> halat ... -> digar
+    | functionStatemnets // bebin type identifier()
+    | returnStatement // bede somthing
+    | functionCallStatement // x(passed parameteres);
+    | classStatement // klass -> feileds , methods , constructures
+    | instantiationStatement // definedClass identifier = jadid definedClass(passed parameters);
+    | thisAssignment // in.feildName
     | objectFieldAssignment
-    | printStatement
-    | goToStatements
-    | inputStatement
+    | printStatement  // bechap(somthing)
+    | goToStatements // handling shekan & edame statements
+    | inputStatement // bekhan(somthing)
+    | exceptionStatements // emteghan , gereftar , akhar
+    | throwsException // bendaz
+    | customExceptionStatement // klass MyException;
     ;
 
 
-//exceptionStatements: ' ';
-//
-//instantiationStatements: ' ';
-//
-//classStatements: ' ';
-//
+/* .....................   supportStatements definitions   .................... */
+
+
+importStatements
+    : IMPORT moduleName SEMICOLEN
+    ;
+
+moduleStatements
+    : MODULE packageName SEMICOLEN
+    ;
+
+definedAssignment
+    : update SEMICOLEN
+    ;
+
+assignmentsStatemetns
+    : type IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
+
+
+
+ifElseStatments
+    : IF OP condition CP OB supportedStatements* CB (ELSE OB supportedStatements* CB)?
+    ;
+
+loopStatements
+    : whileStatement
+    | forStatement
+    ;
+
+goToStatements
+    : (BREAK | CONTINUE) SEMICOLEN
+    ;
+
 
 functionStatemnets
     : DEFINE functionTypes IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
     ;
 
+functionCallStatement
+    : functionCall SEMICOLEN
+    | methodCall SEMICOLEN
+    ;
+
+returnStatement
+    : RETURN expression? SEMICOLEN
+    ;
+
+
+switchStatements
+    : SWITCH OP IDENTIFIER CP OB caseStatements* (DEFAULT OB supportedStatements* CB)? CB
+    ;
+
+
+classStatement
+    : CLASS IDENTIFIER OB classMember* CB
+    ;
+
+thisAssignment
+    : THIS DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
+
+instantiationStatement
+    : IDENTIFIER IDENTIFIER ASSIGNMENT NEW IDENTIFIER OP argumentList? CP SEMICOLEN
+    ;
+
+objectFieldAssignment
+    : IDENTIFIER DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
+    ;
+
+printStatement
+    : PRINT OP expression CP SEMICOLEN
+    ;
+
+inputStatement
+    : INPUT OP inputParameters (COMMA inputParameters)* CP SEMICOLEN
+    ;
+
+exceptionStatements
+    : TRY OB supportedStatements* CB catchClause+ finallyClause?
+    | TRY OB supportedStatements* CB finallyClause
+    ;
+
+throwsException
+    : THROWS exceptionType SEMICOLEN
+    ;
+
+customExceptionStatement
+    : CLASS IDENTIFIER SEMICOLEN
+    ;
+
+
+/* helper statements (derived by supportedStatements) */
 functionParameters
     : functionParameter (COMMA functionParameter)*
     ;
@@ -47,25 +131,42 @@ functionParameter
     : type IDENTIFIER
     ;
 
-returnStatement
-    : RETURN expression? SEMICOLEN
+catchClause
+    : CATCH OP exceptionType IDENTIFIER CP OB supportedStatements* CB
     ;
 
-functionCallStatement
-    : functionCall SEMICOLEN
-    | methodCall SEMICOLEN
+finallyClause
+    : FINALLY OB supportedStatements* CB
     ;
 
-functionCall
-    : IDENTIFIER OP argumentList? CP
+
+fieldAccess
+    : IDENTIFIER DOT IDENTIFIER
     ;
 
-argumentList
-    : expression (COMMA expression)*
+thisFieldAccess
+    : THIS DOT IDENTIFIER
     ;
 
-classStatement
-    : CLASS IDENTIFIER OB classMember* CB
+exceptionType
+    : IDENTIFIER
+    ;
+
+
+methodCall
+    : IDENTIFIER DOT IDENTIFIER OP argumentList? CP
+    ;
+
+caseStatements
+    : CASE literal OB supportedStatements* CB
+    ;
+
+forStatement
+    : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB loopBodyStatement* CB
+    ;
+
+whileStatement
+    : WHILE OP condition CP OB loopBodyStatement* CB
     ;
 
 classMember
@@ -86,78 +187,16 @@ constructorDeclaration
     : DEFINE IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
     ;
 
-thisAssignment
-    : THIS DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
-    ;
-
-objectFieldAssignment
-    : IDENTIFIER DOT IDENTIFIER ASSIGNMENT expression SEMICOLEN
-    ;
-
-fieldAccess
-    : IDENTIFIER DOT IDENTIFIER
-    ;
-
-thisFieldAccess
-    : THIS DOT IDENTIFIER
-    ;
-
-instantiationStatement
-    : IDENTIFIER IDENTIFIER ASSIGNMENT NEW IDENTIFIER OP argumentList? CP SEMICOLEN
-    ;
-
-
-methodCall
-    : IDENTIFIER DOT IDENTIFIER OP argumentList? CP
-    ;
-
-switchStatements
-    : SWITCH OP IDENTIFIER CP OB caseStatements* (DEFAULT OB supportedStatements* CB)? CB
-    ;
-
-caseStatements
-    : CASE literal OB supportedStatements* CB
-    ;
-
-loopStatements
-    : whileStatement
-    | forStatement
-    ;
-
-forStatement
-    : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB loopBodyStatement* CB
-    ;
-
-whileStatement
-    : WHILE OP condition CP OB loopBodyStatement* CB
-    ;
-
-goToStatements
-    : (BREAK | CONTINUE) SEMICOLEN
-    ;
-
-importStatements
-    : IMPORT moduleName SEMICOLEN
-    ;
-
-moduleStatements
-    : MODULE packageName SEMICOLEN
-    ;
-
-assignmentsStatemetns
-    : type IDENTIFIER ASSIGNMENT expression SEMICOLEN
-    ;
-
-definedAssignment
-    : update SEMICOLEN
-    ;
-
-ifElseStatments
-    : IF OP condition CP OB supportedStatements* CB (ELSE OB supportedStatements* CB)?
-    ;
-
 condition
     : expression
+    ;
+
+functionCall
+    : IDENTIFIER OP argumentList? CP
+    ;
+
+argumentList
+    : expression (COMMA expression)*
     ;
 
 loopBodyStatement
@@ -175,7 +214,12 @@ loopBodyStatement
     | thisAssignment
     | objectFieldAssignment
     | printStatement
+    | inputStatement
+    | exceptionStatements
+    | throwsException
+    | customExceptionStatement
     ;
+
 
 ifElseStatmentsInLoop
     : IF OP condition CP OB loopBodyStatement* CB (ELSE OB loopBodyStatement* CB)?
@@ -186,7 +230,7 @@ update
     ;
 
 
-// main grammar handeling
+// main expression prority handeling in parser
 expression
     : logicalOrExpression
     ;
@@ -238,14 +282,6 @@ primaryExpression
     | OP expression CP
     ;
 
-printStatement
-    : PRINT OP expression CP SEMICOLEN
-    ;
-
-inputStatement
-    : INPUT OP inputParameters (COMMA inputParameters)* CP SEMICOLEN
-    ;
-
 inputParameters
     : type IDENTIFIER
     ;
@@ -290,7 +326,7 @@ booleanLiteral
     ;
 
 
-// supported keywords(lexer rulles)
+/* .................... supported keywords(lexer rulles) .................   */
 MODULE : 'baste';
 IMPORT : 'biar';
 CLASS : 'klass';
@@ -325,7 +361,7 @@ PRINT : 'bechap';
 INPUT : 'bekhan';
 
 
-// rest supported words(not known as key words)
+/* ............ rest supported words(not known as key words) ............ */
 OP : '(';
 CP : ')';
 OB : '{';
@@ -356,7 +392,7 @@ CHAR_LITERAL : '\'' . '\'';
 IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]*;
 
 
-// AGNORABLE_STATEMENTS
+/* ..................... AGNORABLE_STATEMENTS ................... */
 LINE_COMMENT : '//' ~[\r\n]* -> skip;
 
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

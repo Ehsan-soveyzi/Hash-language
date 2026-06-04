@@ -30,6 +30,12 @@ public class SemanticChecker extends HashBaseListener {
     private final Map<String, String> variables = new HashMap<>();
     private final Map<String, FunctionInfo> functions = new HashMap<>();
 
+    private final Set<String> exceptionTypes = new HashSet<>(Arrays.asList(
+            "SefrBood",
+            "MahdoodeNadorost",
+            "JadvalKhali",
+            "GheireMojaz"
+    ));
     private final Stack<String> functionReturnTypes = new Stack<>();
     private final Stack<Boolean> functionHasReturn = new Stack<>();
     private final Stack<Map<String, String>> variableSnapshots = new Stack<>();
@@ -40,6 +46,7 @@ public class SemanticChecker extends HashBaseListener {
 
     private final Map<String, ClassInfo> classes = new HashMap<>();
     private final Stack<String> currentClassStack = new Stack<>();
+
 
     public boolean hasErrors() {
         return hasErrors;
@@ -72,6 +79,66 @@ public class SemanticChecker extends HashBaseListener {
         exitCallableScope(ctx);
     }
 
+    @Override
+    public void enterThrowsException(HashParser.ThrowsExceptionContext ctx) {
+        String exceptionName = ctx.exceptionType().IDENTIFIER().getText();
+
+        validateExceptionType(ctx.start.getLine(), exceptionName);
+    }
+
+    @Override
+    public void enterCatchClause(HashParser.CatchClauseContext ctx) {
+        String exceptionName = ctx.exceptionType().IDENTIFIER().getText();
+        String catchVariableName = ctx.IDENTIFIER().getText();
+
+        validateExceptionType(ctx.start.getLine(), exceptionName);
+
+        variableSnapshots.push(new HashMap<>(variables));
+
+        if (variables.containsKey(catchVariableName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Catch variable '" + catchVariableName + "' is already defined."
+            );
+        }
+
+        variables.put(catchVariableName, exceptionName);
+    }
+
+    @Override
+    public void exitCatchClause(HashParser.CatchClauseContext ctx) {
+        if (variableSnapshots.isEmpty()) {
+            return;
+        }
+
+        Map<String, String> previousVariables = variableSnapshots.pop();
+        variables.clear();
+        variables.putAll(previousVariables);
+    }
+
+    @Override
+    public void enterCustomExceptionStatement(HashParser.CustomExceptionStatementContext ctx) {
+        String exceptionName = ctx.IDENTIFIER().getText();
+
+        if (!Character.isUpperCase(exceptionName.charAt(0))) {
+            error(
+                    ctx.start.getLine(),
+                    "Custom exception '" + exceptionName + "' must start with an uppercase letter."
+            );
+            return;
+        }
+
+        if (exceptionTypes.contains(exceptionName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Exception type '" + exceptionName + "' is already defined."
+            );
+            return;
+        }
+
+        exceptionTypes.add(exceptionName);
+    }
+
     // ------------------------------------------------------------
     // Register all top-level function signatures before checking bodies.
     // This makes recursion and forward function calls possible.
@@ -87,96 +154,6 @@ public class SemanticChecker extends HashBaseListener {
                 registerClassSignature(statement.classStatement());
             }
         }
-    }
-
-    private void registerClassSignature(HashParser.ClassStatementContext ctx) {
-        String className = ctx.IDENTIFIER().getText();
-
-        if (classes.containsKey(className)) {
-            error(ctx.start.getLine(), "Class '" + className + "' is already defined.");
-            return;
-        }
-
-        ClassInfo classInfo = new ClassInfo(className);
-
-        for (HashParser.ClassMemberContext member : ctx.classMember()) {
-            if (member.fieldDeclaration() != null) {
-                String fieldType = member.fieldDeclaration().type().getText();
-                String fieldName = member.fieldDeclaration().IDENTIFIER().getText();
-
-                if (classInfo.fields.containsKey(fieldName)) {
-                    error(member.start.getLine(), "Field '" + fieldName + "' is already defined in class '" + className + "'.");
-                }
-
-                classInfo.fields.put(fieldName, fieldType);
-            }
-
-            if (member.classMethodDeclaration() != null) {
-                HashParser.ClassMethodDeclarationContext method = member.classMethodDeclaration();
-
-                String methodName = method.IDENTIFIER().getText();
-                String returnType = method.functionTypes().getText();
-
-                FunctionInfo methodInfo = buildFunctionInfo(returnType, method.functionParameters());
-
-                if (classInfo.methods.containsKey(methodName)) {
-                    error(method.start.getLine(), "Method '" + methodName + "' is already defined in class '" + className + "'.");
-                }
-
-                classInfo.methods.put(methodName, methodInfo);
-            }
-
-            if (member.constructorDeclaration() != null) {
-                HashParser.ConstructorDeclarationContext constructor = member.constructorDeclaration();
-
-                String constructorName = constructor.IDENTIFIER().getText();
-
-                if (!constructorName.equals(className)) {
-                    error(constructor.start.getLine(), "Constructor name '" + constructorName + "' must be same as class name '" + className + "'.");
-                }
-
-                classInfo.constructor = buildFunctionInfo("hich", constructor.functionParameters());
-            }
-        }
-
-        classes.put(className, classInfo);
-    }
-
-    private void registerFunctionSignature(HashParser.FunctionStatemnetsContext ctx) {
-        String functionName = ctx.IDENTIFIER().getText();
-        String returnType = ctx.functionTypes().getText();
-
-        if (functions.containsKey(functionName)) {
-            error(
-                    ctx.start.getLine(),
-                    "Function '" + functionName + "' is already defined."
-            );
-            return;
-        }
-
-        List<String> paramTypes = new ArrayList<>();
-        List<String> paramNames = new ArrayList<>();
-        Set<String> seenParams = new HashSet<>();
-
-        if (ctx.functionParameters() != null) {
-            for (HashParser.FunctionParameterContext param : ctx.functionParameters().functionParameter()) {
-                String paramType = param.type().getText();
-                String paramName = param.IDENTIFIER().getText();
-
-                if (seenParams.contains(paramName)) {
-                    error(
-                            param.start.getLine(),
-                            "Parameter '" + paramName + "' is already defined in function '" + functionName + "'."
-                    );
-                }
-
-                seenParams.add(paramName);
-                paramTypes.add(paramType);
-                paramNames.add(paramName);
-            }
-        }
-
-        functions.put(functionName, new FunctionInfo(returnType, paramTypes, paramNames));
     }
 
     // ------------------------------------------------------------
@@ -306,29 +283,6 @@ public class SemanticChecker extends HashBaseListener {
     }
 
 
-    private void checkArguments(int line, String callableName, FunctionInfo info, List<HashParser.ExpressionContext> args) {
-        if (args.size() != info.paramTypes.size()) {
-            error(
-                    line,
-                    callableName + " expects " + info.paramTypes.size() +
-                            " arguments, but got " + args.size() + "."
-            );
-            return;
-        }
-
-        for (int i = 0; i < args.size(); i++) {
-            String expectedType = info.paramTypes.get(i);
-            String actualType = inferExpressionType(args.get(i));
-
-            if (!isCompatible(expectedType, actualType)) {
-                error(
-                        args.get(i).start.getLine(),
-                        "Argument " + (i + 1) + " of " + callableName +
-                                " must be " + expectedType + ", but got " + actualType + "."
-                );
-            }
-        }
-    }
 
     @Override
     public void enterClassStatement(HashParser.ClassStatementContext ctx) {
@@ -341,40 +295,6 @@ public class SemanticChecker extends HashBaseListener {
     }
 
 
-    private String inferMethodCallType(HashParser.MethodCallContext ctx) {
-        String objectName = ctx.IDENTIFIER(0).getText();
-        String methodName = ctx.IDENTIFIER(1).getText();
-
-        if (!variables.containsKey(objectName)) {
-            error(ctx.start.getLine(), "Object '" + objectName + "' is not defined.");
-            return "unknown";
-        }
-
-        String className = variables.get(objectName);
-
-        if (!classes.containsKey(className)) {
-            error(ctx.start.getLine(), "'" + objectName + "' is not an object of a known class.");
-            return "unknown";
-        }
-
-        ClassInfo classInfo = classes.get(className);
-
-        if (!classInfo.methods.containsKey(methodName)) {
-            error(ctx.start.getLine(), "Method '" + methodName + "' is not defined in class '" + className + "'.");
-            return "unknown";
-        }
-
-        FunctionInfo methodInfo = classInfo.methods.get(methodName);
-
-        List<HashParser.ExpressionContext> args =
-                ctx.argumentList() == null
-                        ? Collections.emptyList()
-                        : ctx.argumentList().expression();
-
-        checkArguments(ctx.start.getLine(), "method '" + methodName + "'", methodInfo, args);
-
-        return methodInfo.returnType;
-    }
 
 
     @Override
@@ -402,23 +322,11 @@ public class SemanticChecker extends HashBaseListener {
         }
     }
 
-    private FunctionInfo buildFunctionInfo(String returnType, HashParser.FunctionParametersContext params) {
-        List<String> paramTypes = new ArrayList<>();
-        List<String> paramNames = new ArrayList<>();
-
-        if (params != null) {
-            for (HashParser.FunctionParameterContext param : params.functionParameter()) {
-                paramTypes.add(param.type().getText());
-                paramNames.add(param.IDENTIFIER().getText());
-            }
-        }
-
-        return new FunctionInfo(returnType, paramTypes, paramNames);
-    }
 
     // ------------------------------------------------------------
     // Return checking
     // ------------------------------------------------------------
+
     @Override
     public void enterReturnStatement(HashParser.ReturnStatementContext ctx) {
         if (functionReturnTypes.isEmpty()) {
@@ -479,49 +387,6 @@ public class SemanticChecker extends HashBaseListener {
         }
     }
 
-    private String inferFunctionCallType(HashParser.FunctionCallContext ctx) {
-        String functionName = ctx.IDENTIFIER().getText();
-
-        if (!functions.containsKey(functionName)) {
-            error(
-                    ctx.start.getLine(),
-                    "Function '" + functionName + "' is not defined."
-            );
-            return "unknown";
-        }
-
-        FunctionInfo info = functions.get(functionName);
-
-        List<HashParser.ExpressionContext> args =
-                ctx.argumentList() == null
-                        ? Collections.emptyList()
-                        : ctx.argumentList().expression();
-
-        if (args.size() != info.paramTypes.size()) {
-            error(
-                    ctx.start.getLine(),
-                    "Function '" + functionName + "' expects " + info.paramTypes.size() +
-                            " arguments, but got " + args.size() + "."
-            );
-            return info.returnType;
-        }
-
-        for (int i = 0; i < args.size(); i++) {
-            String expectedType = info.paramTypes.get(i);
-            String actualType = inferExpressionType(args.get(i));
-
-            if (!isCompatible(expectedType, actualType)) {
-                error(
-                        args.get(i).start.getLine(),
-                        "Argument " + (i + 1) + " of function '" + functionName +
-                                "' must be " + expectedType +
-                                ", but got " + actualType + "."
-                );
-            }
-        }
-
-        return info.returnType;
-    }
 
     // ------------------------------------------------------------
     // Loop and goTo checking
@@ -676,6 +541,13 @@ public class SemanticChecker extends HashBaseListener {
                             "' of type " + declaredType
             );
         }
+        if (exceptionTypes.contains(variableName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Cannot use exception type '" + variableName + "' as a variable name."
+            );
+            return;
+        }
 
         variables.put(variableName, declaredType);
     }
@@ -683,6 +555,85 @@ public class SemanticChecker extends HashBaseListener {
     // ------------------------------------------------------------
     // Type compatibility
     // ------------------------------------------------------------
+    private String inferMethodCallType(HashParser.MethodCallContext ctx) {
+        String objectName = ctx.IDENTIFIER(0).getText();
+        String methodName = ctx.IDENTIFIER(1).getText();
+
+        if (!variables.containsKey(objectName)) {
+            error(ctx.start.getLine(), "Object '" + objectName + "' is not defined.");
+            return "unknown";
+        }
+
+        String className = variables.get(objectName);
+
+        if (!classes.containsKey(className)) {
+            error(ctx.start.getLine(), "'" + objectName + "' is not an object of a known class.");
+            return "unknown";
+        }
+
+        ClassInfo classInfo = classes.get(className);
+
+        if (!classInfo.methods.containsKey(methodName)) {
+            error(ctx.start.getLine(), "Method '" + methodName + "' is not defined in class '" + className + "'.");
+            return "unknown";
+        }
+
+        FunctionInfo methodInfo = classInfo.methods.get(methodName);
+
+        List<HashParser.ExpressionContext> args =
+                ctx.argumentList() == null
+                        ? Collections.emptyList()
+                        : ctx.argumentList().expression();
+
+        checkArguments(ctx.start.getLine(), "method '" + methodName + "'", methodInfo, args);
+
+        return methodInfo.returnType;
+    }
+
+    private String inferFunctionCallType(HashParser.FunctionCallContext ctx) {
+        String functionName = ctx.IDENTIFIER().getText();
+
+        if (!functions.containsKey(functionName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Function '" + functionName + "' is not defined."
+            );
+            return "unknown";
+        }
+
+        FunctionInfo info = functions.get(functionName);
+
+        List<HashParser.ExpressionContext> args =
+                ctx.argumentList() == null
+                        ? Collections.emptyList()
+                        : ctx.argumentList().expression();
+
+        if (args.size() != info.paramTypes.size()) {
+            error(
+                    ctx.start.getLine(),
+                    "Function '" + functionName + "' expects " + info.paramTypes.size() +
+                            " arguments, but got " + args.size() + "."
+            );
+            return info.returnType;
+        }
+
+        for (int i = 0; i < args.size(); i++) {
+            String expectedType = info.paramTypes.get(i);
+            String actualType = inferExpressionType(args.get(i));
+
+            if (!isCompatible(expectedType, actualType)) {
+                error(
+                        args.get(i).start.getLine(),
+                        "Argument " + (i + 1) + " of function '" + functionName +
+                                "' must be " + expectedType +
+                                ", but got " + actualType + "."
+                );
+            }
+        }
+
+        return info.returnType;
+    }
+
     private boolean isCompatible(String declaredType, String expressionType) {
         if (declaredType == null || expressionType == null) {
             return false;
@@ -794,6 +745,27 @@ public class SemanticChecker extends HashBaseListener {
         }
 
         return type;
+    }
+
+    private void validateExceptionType(int line, String exceptionName) {
+        if (exceptionName == null || exceptionName.isEmpty()) {
+            error(line, "Exception type is empty.");
+            return;
+        }
+
+        if (!Character.isUpperCase(exceptionName.charAt(0))) {
+            error(
+                    line,
+                    "Exception type '" + exceptionName + "' must start with an uppercase letter."
+            );
+        }
+
+        if (!exceptionTypes.contains(exceptionName)) {
+            error(
+                    line,
+                    "Exception type '" + exceptionName + "' is not defined."
+            );
+        }
     }
 
     private String inferMultiplicative(HashParser.MultiplicativeExpressionContext ctx) {
@@ -1058,5 +1030,132 @@ public class SemanticChecker extends HashBaseListener {
         }
 
         return classInfo.fields.get(fieldName);
+    }
+    private FunctionInfo buildFunctionInfo(String returnType, HashParser.FunctionParametersContext params) {
+        List<String> paramTypes = new ArrayList<>();
+        List<String> paramNames = new ArrayList<>();
+
+        if (params != null) {
+            for (HashParser.FunctionParameterContext param : params.functionParameter()) {
+                paramTypes.add(param.type().getText());
+                paramNames.add(param.IDENTIFIER().getText());
+            }
+        }
+
+        return new FunctionInfo(returnType, paramTypes, paramNames);
+    }
+
+    private void checkArguments(int line, String callableName, FunctionInfo info, List<HashParser.ExpressionContext> args) {
+        if (args.size() != info.paramTypes.size()) {
+            error(
+                    line,
+                    callableName + " expects " + info.paramTypes.size() +
+                            " arguments, but got " + args.size() + "."
+            );
+            return;
+        }
+
+        for (int i = 0; i < args.size(); i++) {
+            String expectedType = info.paramTypes.get(i);
+            String actualType = inferExpressionType(args.get(i));
+
+            if (!isCompatible(expectedType, actualType)) {
+                error(
+                        args.get(i).start.getLine(),
+                        "Argument " + (i + 1) + " of " + callableName +
+                                " must be " + expectedType + ", but got " + actualType + "."
+                );
+            }
+        }
+    }
+
+    private void registerClassSignature(HashParser.ClassStatementContext ctx) {
+        String className = ctx.IDENTIFIER().getText();
+
+        if (classes.containsKey(className)) {
+            error(ctx.start.getLine(), "Class '" + className + "' is already defined.");
+            return;
+        }
+
+        ClassInfo classInfo = new ClassInfo(className);
+
+        for (HashParser.ClassMemberContext member : ctx.classMember()) {
+            if (member.fieldDeclaration() != null) {
+                String fieldType = member.fieldDeclaration().type().getText();
+                String fieldName = member.fieldDeclaration().IDENTIFIER().getText();
+
+                if (classInfo.fields.containsKey(fieldName)) {
+                    error(member.start.getLine(), "Field '" + fieldName + "' is already defined in class '" + className + "'.");
+                }
+
+                classInfo.fields.put(fieldName, fieldType);
+            }
+
+            if (member.classMethodDeclaration() != null) {
+                HashParser.ClassMethodDeclarationContext method = member.classMethodDeclaration();
+
+                String methodName = method.IDENTIFIER().getText();
+                String returnType = method.functionTypes().getText();
+
+                FunctionInfo methodInfo = buildFunctionInfo(returnType, method.functionParameters());
+
+                if (classInfo.methods.containsKey(methodName)) {
+                    error(method.start.getLine(), "Method '" + methodName + "' is already defined in class '" + className + "'.");
+                }
+
+                classInfo.methods.put(methodName, methodInfo);
+            }
+
+            if (member.constructorDeclaration() != null) {
+                HashParser.ConstructorDeclarationContext constructor = member.constructorDeclaration();
+
+                String constructorName = constructor.IDENTIFIER().getText();
+
+                if (!constructorName.equals(className)) {
+                    error(constructor.start.getLine(), "Constructor name '" + constructorName + "' must be same as class name '" + className + "'.");
+                }
+
+                classInfo.constructor = buildFunctionInfo("hich", constructor.functionParameters());
+            }
+        }
+
+        classes.put(className, classInfo);
+    }
+
+    private void registerFunctionSignature(HashParser.FunctionStatemnetsContext ctx) {
+        String functionName = ctx.IDENTIFIER().getText();
+        String returnType = ctx.functionTypes().getText();
+
+        if (functions.containsKey(functionName)) {
+            error(
+                    ctx.start.getLine(),
+                    "Function '" + functionName + "' is already defined."
+            );
+            return;
+        }
+
+        List<String> paramTypes = new ArrayList<>();
+        List<String> paramNames = new ArrayList<>();
+        Set<String> seenParams = new HashSet<>();
+
+        if (ctx.functionParameters() != null) {
+            for (HashParser.FunctionParameterContext param : ctx.functionParameters().functionParameter()) {
+                String paramType = param.type().getText();
+                String paramName = param.IDENTIFIER().getText();
+
+                if (seenParams.contains(paramName)) {
+                    error(
+                            param.start.getLine(),
+                            "Parameter '" + paramName + "' is already defined in function '" + functionName + "'."
+                    );
+                }
+
+                seenParams.add(paramName);
+                paramTypes.add(paramType);
+                paramNames.add(paramName);
+            }
+        }
+
+        functions.put(functionName, new FunctionInfo(returnType, paramTypes, paramNames));
     }
 }
