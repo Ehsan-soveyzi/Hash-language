@@ -4,7 +4,6 @@
 The project focuses on building a complete grammar using **ANTLR v4** and adding a semantic checking layer in **Java**.
 
 **Author:** Ehsan Soveizi  
-**Student ID:** 4032262112
 
 ---
 
