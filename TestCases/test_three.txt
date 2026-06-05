@@ -1,0 +1,43 @@
+/* File_name : test_three
+related contents : testing class define and instansiation
+*/
+
+
+klass Hesab {
+    adad x;
+    adad y;
+
+
+    bebin Hesab(adad start, adad second) {
+        in.x = start;
+        in.y = second;
+    }
+
+
+    bebin adad zarb(adad a, adad b) {
+        bede a * b;
+    }
+
+    bebin adad jamFields() {
+        bede in.x + in.y;
+    }
+
+    bebin hich setX(adad newValue) {
+        in.x = newValue;
+    }
+}
+
+Hesab h = jadid Hesab(5, 2);
+Hesab h2 = jadid Hesab(2,"sonthung"); // exception here
+
+adad result1 = h.zarb(3, 4);
+adad result2 = h.jamFields();
+
+bechap("zarb result: " + result1);
+bechap("field sum: " + result2);
+
+h.x = 20;
+h.setX(30);
+
+adad finalValue = h.x + h.y;
+bechap("final value: " + finalValue);

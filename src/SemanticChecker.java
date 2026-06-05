@@ -128,6 +128,11 @@ public class SemanticChecker extends HashBaseListener {
             return;
         }
 
+        if(classes.containsKey(exceptionName)) {
+            error(ctx.start.getLine(), exceptionName + "' is a className which is already defined.");
+            return;
+        }
+
         if (exceptionTypes.contains(exceptionName)) {
             error(
                     ctx.start.getLine(),
@@ -162,6 +167,10 @@ public class SemanticChecker extends HashBaseListener {
     @Override
     public void enterFunctionStatemnets(HashParser.FunctionStatemnetsContext ctx) {
         String functionName = ctx.IDENTIFIER().getText();
+
+        if(Character.isUpperCase(functionName.charAt(0))) {
+           error(ctx.start.getLine(), "Function must start with an lowerCase character.");
+        }
 
         if (!functions.containsKey(functionName)) {
             registerFunctionSignature(ctx);
@@ -286,6 +295,9 @@ public class SemanticChecker extends HashBaseListener {
 
     @Override
     public void enterClassStatement(HashParser.ClassStatementContext ctx) {
+        if(!Character.isUpperCase(ctx.IDENTIFIER().getText().charAt(0))) {
+            error(ctx.getStart().getLine(), "Class '" + ctx.IDENTIFIER().getText() + "' is not a valid class name.");
+        }
         currentClassStack.push(ctx.IDENTIFIER().getText());
     }
 
@@ -533,6 +545,12 @@ public class SemanticChecker extends HashBaseListener {
 
         String expressionType = inferExpressionType(ctx.expression());
 
+        if(Character.isUpperCase(variableName.charAt(0))) {
+            error(
+                    ctx.start.getLine(),
+                    "variables must start with lower case characters!"
+            );
+        }
         if (!isCompatible(declaredType, expressionType)) {
             error(
                     ctx.start.getLine(),
@@ -549,6 +567,16 @@ public class SemanticChecker extends HashBaseListener {
             return;
         }
 
+        variables.put(variableName, declaredType);
+    }
+
+    @Override
+    public void enterDefineVariableWithNoAssignmentStatement(HashParser.DefineVariableWithNoAssignmentStatementContext ctx){
+        String declaredType = ctx.type().getText();
+        String variableName = ctx.IDENTIFIER().getText();
+        if(Character.isUpperCase(variableName.charAt(0))) {
+            error(ctx.start.getLine(), "variables must start with lower case characters!");
+        }
         variables.put(variableName, declaredType);
     }
 
@@ -647,6 +675,10 @@ public class SemanticChecker extends HashBaseListener {
             return true;
         }
 
+        if(expressionType.equals("khali")){ // means the khali value can be assigned to any proper types
+            return true;
+        }
+
         // ashari can accept adad.
         if (declaredType.equals("ashari") && expressionType.equals("adad")) {
             return true;
@@ -655,9 +687,9 @@ public class SemanticChecker extends HashBaseListener {
         return false;
     }
 
-    // ------------------------------------------------------------
-    // Expression type inference
-    // ------------------------------------------------------------
+// ------------------------------------------------------------
+// Expression type inference
+// ------------------------------------------------------------
     private String inferExpressionType(HashParser.ExpressionContext ctx) {
         return inferLogicalOr(ctx.logicalOrExpression());
     }
@@ -730,10 +762,17 @@ public class SemanticChecker extends HashBaseListener {
         String type = inferMultiplicative(ctx.multiplicativeExpression(0));
 
         for (int i = 1; i < ctx.multiplicativeExpression().size(); i++) {
+            String operator = ctx.getChild(2 * i - 1).getText();
             String rightType = inferMultiplicative(ctx.multiplicativeExpression(i));
 
+            // string concatenation: "hello" + name
+            if (operator.equals("+") && (type.equals("matn") || rightType.equals("matn"))) {
+                type = "matn";
+                continue;
+            }
+
             if (!isNumeric(type) || !isNumeric(rightType)) {
-                error(ctx.start.getLine(), "Operators + and - need numeric operands.");
+                error(ctx.start.getLine(), "Operators + and - need numeric operands, except + with matn.");
                 return "unknown";
             }
 
@@ -747,32 +786,11 @@ public class SemanticChecker extends HashBaseListener {
         return type;
     }
 
-    private void validateExceptionType(int line, String exceptionName) {
-        if (exceptionName == null || exceptionName.isEmpty()) {
-            error(line, "Exception type is empty.");
-            return;
-        }
-
-        if (!Character.isUpperCase(exceptionName.charAt(0))) {
-            error(
-                    line,
-                    "Exception type '" + exceptionName + "' must start with an uppercase letter."
-            );
-        }
-
-        if (!exceptionTypes.contains(exceptionName)) {
-            error(
-                    line,
-                    "Exception type '" + exceptionName + "' is not defined."
-            );
-        }
-    }
-
     private String inferMultiplicative(HashParser.MultiplicativeExpressionContext ctx) {
-        String type = inferUnary(ctx.unaryExpression(0));
+        String type = inferPower(ctx.powerExpression(0));
 
-        for (int i = 1; i < ctx.unaryExpression().size(); i++) {
-            String rightType = inferUnary(ctx.unaryExpression(i));
+        for (int i = 1; i < ctx.powerExpression().size(); i++) {
+            String rightType = inferPower(ctx.powerExpression(i));
 
             if (!isNumeric(type) || !isNumeric(rightType)) {
                 error(ctx.start.getLine(), "Operators *, / and % need numeric operands.");
@@ -789,36 +807,14 @@ public class SemanticChecker extends HashBaseListener {
         return type;
     }
 
-    private String inferUnary(HashParser.UnaryExpressionContext ctx) {
-        if (ctx.powerExpression() != null) {
-            return inferPower(ctx.powerExpression());
-        }
-
-        String operator = ctx.getChild(0).getText();
-        String operandType = inferUnary(ctx.unaryExpression());
-
-        if (operator.equals("!")) {
-            if (!operandType.equals("boole")) {
-                error(ctx.start.getLine(), "Operator ! needs boolean operand.");
-            }
-            return "boole";
-        }
-
-        if (operator.equals("+") || operator.equals("-") || operator.equals("++") || operator.equals("--")) {
-            if (!isNumeric(operandType)) {
-                error(ctx.start.getLine(), "Unary operator " + operator + " needs numeric operand.");
-            }
-            return operandType;
-        }
-
-        return operandType;
-    }
-
     private String inferPower(HashParser.PowerExpressionContext ctx) {
         String leftType = inferPostfix(ctx.postfixExpression());
 
-        if (ctx.unaryExpression() != null) {
-            String rightType = inferUnary(ctx.unaryExpression());
+        // New grammar:
+        // powerExpression : postfixExpression (POWER powerExpression)?
+        // so power is right-associative.
+        if (ctx.powerExpression() != null) {
+            String rightType = inferPower(ctx.powerExpression());
 
             if (!isNumeric(leftType) || !isNumeric(rightType)) {
                 error(ctx.start.getLine(), "Operator ** needs numeric operands.");
@@ -836,7 +832,7 @@ public class SemanticChecker extends HashBaseListener {
     }
 
     private String inferPostfix(HashParser.PostfixExpressionContext ctx) {
-        String type = inferPrimary(ctx.primaryExpression());
+        String type = inferPrefix(ctx.prefixExpression());
 
         if (ctx.INCREEMENT() != null || ctx.DECREEMENT() != null) {
             if (!isNumeric(type)) {
@@ -847,11 +843,32 @@ public class SemanticChecker extends HashBaseListener {
         return type;
     }
 
-    private String inferPrimary(HashParser.PrimaryExpressionContext ctx) {
-        if (ctx.literal() != null) {
-            return inferLiteral(ctx.literal());
+    private String inferPrefix(HashParser.PrefixExpressionContext ctx) {
+        if (ctx.accessAndCallsExpression() != null) {
+            return inferAccessAndCalls(ctx.accessAndCallsExpression());
         }
 
+        String operator = ctx.getChild(0).getText();
+        String operandType = inferPrefix(ctx.prefixExpression());
+
+        if (operator.equals("!")) {
+            if (!operandType.equals("boole")) {
+                error(ctx.start.getLine(), "Operator ! needs boolean operand.");
+            }
+            return "boole";
+        }
+
+        if (operator.equals("+") || operator.equals("-") || operator.equals("++") || operator.equals("--")) {
+            if (!isNumeric(operandType)) {
+                error(ctx.start.getLine(), "Prefix operator " + operator + " needs numeric operand.");
+            }
+            return operandType;
+        }
+
+        return operandType;
+    }
+
+    private String inferAccessAndCalls(HashParser.AccessAndCallsExpressionContext ctx) {
         if (ctx.methodCall() != null) {
             String returnType = inferMethodCallType(ctx.methodCall());
 
@@ -867,22 +884,31 @@ public class SemanticChecker extends HashBaseListener {
             String returnType = inferFunctionCallType(ctx.functionCall());
 
             if (returnType.equals("hich")) {
-                error(
-                        ctx.start.getLine(),
-                        "Function with return type hich cannot be used as a value."
-                );
+                error(ctx.start.getLine(), "Function with return type hich cannot be used as a value.");
                 return "unknown";
             }
 
             return returnType;
         }
 
+        if (ctx.fieldAccess() != null) {
+            return inferFieldAccessType(ctx.fieldAccess());
+        }
+
         if (ctx.thisFieldAccess() != null) {
             return inferThisFieldAccessType(ctx.thisFieldAccess());
         }
 
-        if (ctx.fieldAccess() != null) {
-            return inferFieldAccessType(ctx.fieldAccess());
+        if (ctx.primaryExpression() != null) {
+            return inferPrimary(ctx.primaryExpression());
+        }
+
+        return "unknown";
+    }
+
+    private String inferPrimary(HashParser.PrimaryExpressionContext ctx) {
+        if (ctx.literal() != null) {
+            return inferLiteral(ctx.literal());
         }
 
         if (ctx.IDENTIFIER() != null) {
@@ -935,6 +961,26 @@ public class SemanticChecker extends HashBaseListener {
         return type.equals("adad") || type.equals("ashari");
     }
 
+    private void validateExceptionType(int line, String exceptionName) {
+        if (exceptionName == null || exceptionName.isEmpty()) {
+            error(line, "Exception type is empty.");
+            return;
+        }
+
+        if (!Character.isUpperCase(exceptionName.charAt(0))) {
+            error(
+                    line,
+                    "Exception type '" + exceptionName + "' must start with an uppercase letter."
+            );
+        }
+
+        if (!exceptionTypes.contains(exceptionName)) {
+            error(
+                    line,
+                    "Exception type '" + exceptionName + "' is not defined."
+            );
+        }
+    }
 
     private void enterCallableScope(String returnType, HashParser.FunctionParametersContext params) {
         functionReturnTypes.push(returnType);
@@ -1077,12 +1123,21 @@ public class SemanticChecker extends HashBaseListener {
             return;
         }
 
+        if(exceptionTypes.contains(className)) {
+            error(ctx.start.getLine(), "Class Exception'" + className + "' is already defined.");
+            return;
+        }
+
         ClassInfo classInfo = new ClassInfo(className);
 
         for (HashParser.ClassMemberContext member : ctx.classMember()) {
             if (member.fieldDeclaration() != null) {
                 String fieldType = member.fieldDeclaration().type().getText();
                 String fieldName = member.fieldDeclaration().IDENTIFIER().getText();
+
+                if(Character.isUpperCase(fieldName.charAt(0))) {
+                    error(ctx.start.getLine(), "Fields must start with a lowerCase character.");
+                }
 
                 if (classInfo.fields.containsKey(fieldName)) {
                     error(member.start.getLine(), "Field '" + fieldName + "' is already defined in class '" + className + "'.");
@@ -1096,6 +1151,10 @@ public class SemanticChecker extends HashBaseListener {
 
                 String methodName = method.IDENTIFIER().getText();
                 String returnType = method.functionTypes().getText();
+
+                if(Character.isUpperCase(methodName.charAt(0))) {
+                    error(ctx.start.getLine(), "methods must start with a lowerCase character.");
+                }
 
                 FunctionInfo methodInfo = buildFunctionInfo(returnType, method.functionParameters());
 
@@ -1142,6 +1201,10 @@ public class SemanticChecker extends HashBaseListener {
             for (HashParser.FunctionParameterContext param : ctx.functionParameters().functionParameter()) {
                 String paramType = param.type().getText();
                 String paramName = param.IDENTIFIER().getText();
+
+                if(Character.isUpperCase(paramName.charAt(0))) {
+                    error(ctx.start.getLine(), "parameters must start with a lowerCase character.");
+                }
 
                 if (seenParams.contains(paramName)) {
                     error(

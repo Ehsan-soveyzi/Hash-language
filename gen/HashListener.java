@@ -67,6 +67,16 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link HashParser#defineVariableWithNoAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefineVariableWithNoAssignmentStatement(HashParser.DefineVariableWithNoAssignmentStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#defineVariableWithNoAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefineVariableWithNoAssignmentStatement(HashParser.DefineVariableWithNoAssignmentStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link HashParser#ifElseStatments}.
 	 * @param ctx the parse tree
 	 */
@@ -507,16 +517,6 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitMultiplicativeExpression(HashParser.MultiplicativeExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#unaryExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnaryExpression(HashParser.UnaryExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#unaryExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnaryExpression(HashParser.UnaryExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link HashParser#powerExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -536,6 +536,26 @@ public interface HashListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPostfixExpression(HashParser.PostfixExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#prefixExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrefixExpression(HashParser.PrefixExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#prefixExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrefixExpression(HashParser.PrefixExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link HashParser#accessAndCallsExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAccessAndCallsExpression(HashParser.AccessAndCallsExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HashParser#accessAndCallsExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAccessAndCallsExpression(HashParser.AccessAndCallsExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HashParser#primaryExpression}.
 	 * @param ctx the parse tree

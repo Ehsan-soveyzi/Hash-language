@@ -1,0 +1,30 @@
+adad total = 0;
+adad outer = 0;
+
+ta (outer < 3) {
+    bechap("outer: " + outer);
+
+    baraye (adad i = 0; i < 10; i = i + 1) {
+        age (i == 2) bood {
+            edame;
+        }
+
+        age (i == 7) bood {
+            shekan;
+        }
+
+        total = total + i;
+        bechap("i: " + i);
+    }
+
+    age (total > 20) bood {
+        bechap("total is big");
+    } vagarna {
+        bechap("total is small");
+    }
+
+    outer = outer + 1;
+}
+
+bechap("final total:");
+bechap(total);

@@ -1,13 +1,5 @@
-bekhan(adad n,adad m,matn mine);
+baste somtjing;
 
-adad x = n;
-
-klass MyException;
-
-bendaz MahdoodeNadorost;
-
-emtehan{adad x = 1;}
-gereftar(MahdoodeNadorost eqewqe){bechap("somthing");}
-akhar{bechap("somthing_else");}
-
+klass MYdasda;
+klass MYdasda{}
 

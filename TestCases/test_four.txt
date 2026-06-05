@@ -1,0 +1,27 @@
+klass MyError;
+
+
+emtehan {
+    bechap("inside try block");
+    bendaz SefrBood();
+}
+gereftar (SefrBood e) {
+    bechap("zero exception handled");
+    bendaz SefrBood;
+}
+akhar {
+    bechap("finally block executed");
+}
+
+
+emtehan {
+    bendaz MyError();
+}
+gereftar (MyError err) {
+    bechap("custom exception handled");
+    bechap(err.getMessage());
+    Bendaz MyError;
+}
+akhar {
+    bechap("custom finally done");
+}

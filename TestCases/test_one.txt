@@ -1,0 +1,27 @@
+/* File_name : Test_one
+related : assignments priority checking with supported operations
+*/
+
+baste assignments.testing;
+
+biar somthing.*;
+
+
+adad x = (2 + 3) * -3 ** 4 ** 5;
+ashari my_value = x++ - (-21);
+ashari my_value2 = --x; // ashari type accepts both ashari and adad !
+matn string_value = "somthing" ; // must be in "" sign
+boole ok = !dorost || (ghalat && (1 > 2)); // can be get values like comparitions and equality checking
+harf my_char = 'c'; // must be inside a '' sign
+
+bechap("my favorite number is : " + x--);
+bekhan(adad n,matn name);
+
+adad new_number = n % x; // here n is defined and will store to my Hashmap Variables
+matn unknown_value; // we can define a value without assignments
+unknown_value = x++; // here we get exception because we assign an adad value inside a matn type variable
+adad null_number = khali; // khali can be assigned to any proper variable types
+
+
+
+

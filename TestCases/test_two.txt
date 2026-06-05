@@ -1,0 +1,44 @@
+/*File_name : test_two.txt
+related to : function declaretion and ifElse testing with swichCase testing
+*/
+
+baste functionTesting;
+
+biar somthing.Else.*;
+
+bebin matn string_function(adad n,matn my_string){
+    age(n > 2) bood {
+         bede my_string;
+    }
+    vagarna{
+       age(n % 2 == 1) bood {bede "no_result";}
+       vagarna{bede "some_result";}
+       }
+    }
+
+bebin hich voidFunc(harf myChar){
+     entekhab(myChar){
+          halat 'A'{
+             bechap('A');
+          }
+          halat 'B'{
+              bechap('B');
+          }
+          digar{
+             bechap("no_result");
+          }
+         }
+}
+
+bebin adad fibo(adad n){
+    age(n == 1 || n == 0) bood{bede n;}
+       bede fibo(n - 1) + fibo(n - 2);
+    }
+
+adad fibo_out = fibo(3);
+adad otherNum = string_function(2,"somthing"); // we will get exception here
+
+adad fibo_out2 = fibo("somthing"); // it's is wrong as well
+
+
+

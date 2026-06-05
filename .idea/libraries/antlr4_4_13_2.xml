@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="antlr4-4.13.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Lib/antlr4-4.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/antlr4-intellij-adaptor-0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/antlr4-runtime-4.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/antlr-runtime-3.5.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/instrumented-intellij-plugin-v4-1.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/org.abego.treelayout.core-1.0.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/org.jfree.svg-5.0.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Lib/ST4-4.3.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

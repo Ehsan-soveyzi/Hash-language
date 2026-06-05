@@ -1,16 +1,18 @@
 grammar Hash;
 
 /*    ............. Start Way ....................... */
-startState : supportedStatements* EOF;
+startState : moduleStatements? importStatements* supportedStatements* EOF;
 
 
 
 /*   ...............  supported statementes  ................ */
+
+
+//topLevelStatements : moduleStatements |  importStatements ;
+
 supportedStatements
     : assignmentsStatemetns // type identifier = expression ;
     | definedAssignment // means like x = 1; x++ , ...
-    | moduleStatements // baste somthing
-    | importStatements // biar somthing.*
     | ifElseStatments // age vagarna
     | loopStatements // ta() ... & baraye() ...
     | switchStatements // entekhab -> halat ... -> digar
@@ -27,11 +29,11 @@ supportedStatements
     | exceptionStatements // emteghan , gereftar , akhar
     | throwsException // bendaz
     | customExceptionStatement // klass MyException;
+    | defineVariableWithNoAssignmentStatement
     ;
 
 
 /* .....................   supportStatements definitions   .................... */
-
 
 importStatements
     : IMPORT moduleName SEMICOLEN
@@ -49,10 +51,12 @@ assignmentsStatemetns
     : type IDENTIFIER ASSIGNMENT expression SEMICOLEN
     ;
 
-
+defineVariableWithNoAssignmentStatement
+    : type IDENTIFIER SEMICOLEN // likes how we define fields inside a class
+    ;
 
 ifElseStatments
-    : IF OP condition CP OB supportedStatements* CB (ELSE OB supportedStatements* CB)?
+    : IF OP condition CP IS OB supportedStatements* CB (ELSE OB supportedStatements* CB)?
     ;
 
 loopStatements
@@ -114,7 +118,7 @@ exceptionStatements
     ;
 
 throwsException
-    : THROWS exceptionType SEMICOLEN
+    : THROWS exceptionType OP CP SEMICOLEN
     ;
 
 customExceptionStatement
@@ -218,11 +222,12 @@ loopBodyStatement
     | exceptionStatements
     | throwsException
     | customExceptionStatement
+    | defineVariableWithNoAssignmentStatement
     ;
 
 
 ifElseStatmentsInLoop
-    : IF OP condition CP OB loopBodyStatement* CB (ELSE OB loopBodyStatement* CB)?
+    : IF OP condition CP IS OB loopBodyStatement* CB (ELSE OB loopBodyStatement* CB)?
     ;
 
 update
@@ -230,7 +235,7 @@ update
     ;
 
 
-// main expression prority handeling in parser
+// main expression priority handling in parser
 expression
     : logicalOrExpression
     ;
@@ -256,28 +261,38 @@ additiveExpression
     ;
 
 multiplicativeExpression
-    : unaryExpression ((MULTIPLICATION | DIVISION | MODULO) unaryExpression)*
+    : powerExpression ((MULTIPLICATION | DIVISION | MODULO) powerExpression)*
     ;
 
-unaryExpression
-    : (NOT | PLUS | MINUS | INCREEMENT | DECREEMENT) unaryExpression
-    | powerExpression
-    ;
-
+// power is right associative: x ** y ** z => x ** (y ** z)
 powerExpression
-    : postfixExpression (POWER unaryExpression)?
+    : postfixExpression (POWER powerExpression)?
     ;
 
+// postfix is parsed after prefix
+// example: ++x-- becomes (++x)--
 postfixExpression
-    : primaryExpression (INCREEMENT | DECREEMENT)?
+    : prefixExpression (INCREEMENT | DECREEMENT)?
     ;
 
-primaryExpression
-    : literal
-    | methodCall
+// prefix unary operators: !x, -x, +x, ++x, --x
+prefixExpression
+    : (NOT | PLUS | MINUS | INCREEMENT | DECREEMENT) prefixExpression
+    | accessAndCallsExpression
+    ;
+
+// access and calls have very high priority
+accessAndCallsExpression
+    : methodCall
     | functionCall
     | fieldAccess
     | thisFieldAccess
+    | primaryExpression
+    ;
+
+// parentheses, literals, and simple identifiers
+primaryExpression
+    : literal
     | IDENTIFIER
     | OP expression CP
     ;

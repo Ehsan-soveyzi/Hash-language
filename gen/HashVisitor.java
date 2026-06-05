@@ -46,6 +46,12 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HashParser#defineVariableWithNoAssignmentStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefineVariableWithNoAssignmentStatement(HashParser.DefineVariableWithNoAssignmentStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HashParser#ifElseStatments}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -310,12 +316,6 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMultiplicativeExpression(HashParser.MultiplicativeExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#unaryExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnaryExpression(HashParser.UnaryExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link HashParser#powerExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -327,6 +327,18 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPostfixExpression(HashParser.PostfixExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#prefixExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrefixExpression(HashParser.PrefixExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HashParser#accessAndCallsExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAccessAndCallsExpression(HashParser.AccessAndCallsExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HashParser#primaryExpression}.
 	 * @param ctx the parse tree
