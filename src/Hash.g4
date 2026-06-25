@@ -83,6 +83,7 @@ returnStatement
     ;
 
 
+
 switchStatements
     : SWITCH OP IDENTIFIER CP OB caseStatements* (DEFAULT OB supportedStatements* CB)? CB
     ;
@@ -166,11 +167,11 @@ caseStatements
     ;
 
 forStatement
-    : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB loopBodyStatement* CB
+    : FOR OP assignmentsStatemetns condition SEMICOLEN update CP OB supportedStatements* CB
     ;
 
 whileStatement
-    : WHILE OP condition CP OB loopBodyStatement* CB
+    : WHILE OP condition CP OB supportedStatements* CB
     ;
 
 classMember
@@ -203,32 +204,6 @@ argumentList
     : expression (COMMA expression)*
     ;
 
-loopBodyStatement
-    : assignmentsStatemetns
-    | definedAssignment
-    | moduleStatements
-    | importStatements
-    | ifElseStatmentsInLoop
-    | loopStatements
-    | switchStatements
-    | goToStatements
-    | returnStatement
-    | functionCallStatement
-    | instantiationStatement
-    | thisAssignment
-    | objectFieldAssignment
-    | printStatement
-    | inputStatement
-    | exceptionStatements
-    | throwsException
-    | customExceptionStatement
-    | defineVariableWithNoAssignmentStatement
-    ;
-
-
-ifElseStatmentsInLoop
-    : IF OP condition CP IS OB loopBodyStatement* CB (ELSE OB loopBodyStatement* CB)?
-    ;
 
 update
     : IDENTIFIER ASSIGNMENT expression

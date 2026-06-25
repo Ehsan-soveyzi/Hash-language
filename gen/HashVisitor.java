@@ -256,18 +256,6 @@ public interface HashVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HashParser#loopBodyStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLoopBodyStatement(HashParser.LoopBodyStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HashParser#ifElseStatmentsInLoop}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link HashParser#update}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

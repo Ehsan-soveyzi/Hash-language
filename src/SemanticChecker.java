@@ -36,6 +36,7 @@ public class SemanticChecker extends HashBaseListener {
             "JadvalKhali",
             "GheireMojaz"
     ));
+
     private final Stack<String> functionReturnTypes = new Stack<>();
     private final Stack<Boolean> functionHasReturn = new Stack<>();
     private final Stack<Map<String, String>> variableSnapshots = new Stack<>();
@@ -173,7 +174,7 @@ public class SemanticChecker extends HashBaseListener {
         }
 
         if (!functions.containsKey(functionName)) {
-            registerFunctionSignature(ctx);
+//            registerFunctionSignature(ctx);
         }
 
         FunctionInfo info = functions.get(functionName);
@@ -483,18 +484,6 @@ public class SemanticChecker extends HashBaseListener {
     // ------------------------------------------------------------
     @Override
     public void enterIfElseStatments(HashParser.IfElseStatmentsContext ctx) {
-        String conditionType = inferExpressionType(ctx.condition().expression());
-
-        if (!Objects.equals(conditionType, "boole")) {
-            error(
-                    ctx.start.getLine(),
-                    "can't assign type " + conditionType + " as condition, conditions must be a boole type"
-            );
-        }
-    }
-
-    @Override
-    public void enterIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx) {
         String conditionType = inferExpressionType(ctx.condition().expression());
 
         if (!Objects.equals(conditionType, "boole")) {

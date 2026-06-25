@@ -417,26 +417,6 @@ public interface HashListener extends ParseTreeListener {
 	 */
 	void exitArgumentList(HashParser.ArgumentListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HashParser#loopBodyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterLoopBodyStatement(HashParser.LoopBodyStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#loopBodyStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitLoopBodyStatement(HashParser.LoopBodyStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HashParser#ifElseStatmentsInLoop}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HashParser#ifElseStatmentsInLoop}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link HashParser#update}.
 	 * @param ctx the parse tree
 	 */

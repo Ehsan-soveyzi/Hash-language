@@ -508,30 +508,6 @@ public class HashBaseListener implements HashListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLoopBodyStatement(HashParser.LoopBodyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLoopBodyStatement(HashParser.LoopBodyStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfElseStatmentsInLoop(HashParser.IfElseStatmentsInLoopContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUpdate(HashParser.UpdateContext ctx) { }
 	/**
 	 * {@inheritDoc}
