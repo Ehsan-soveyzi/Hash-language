@@ -1,5 +1,17 @@
-baste somtjing;
+baste somthing;
 
-klass MYdasda;
-klass MYdasda{}
+
+adad x = 2;
+
+emtehan{
+
+    bendaz Sefrbood();
+}gereftar(sefrbood e){
+
+}akhar{
+
+
+}
+
+
 

@@ -1,0 +1,431 @@
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import java.util.*;
+
+public class PromelaTranslator extends HashBaseVisitor<String> {
+
+    private final StringBuilder globalDecls = new StringBuilder();
+    private final Set<String> declaredGlobals = new HashSet<>();
+
+    private int loopCounter = 0;
+    private int exceptionCounter = 0;
+
+    private final Stack<String> continueLabelStack = new Stack<>();
+
+    public String translate(HashParser.StartStateContext tree) {
+        return visitStartState(tree);
+    }
+
+    @Override
+    public String visitStartState(HashParser.StartStateContext ctx) {
+        declareGlobalWithInit("bool", "divByZero", "false");
+        declareGlobalWithInit("bool", "endReached", "false");
+
+        StringBuilder body = new StringBuilder();
+
+        for (HashParser.SupportedStatementsContext st : ctx.supportedStatements()) {
+            String code = visit(st);
+            if (code != null && !code.isBlank()) {
+                body.append(code);
+            }
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        out.append("/* Generated Promela model from Hash */\n\n");
+        out.append(globalDecls).append("\n");
+
+        out.append("active proctype main() {\n");
+        out.append(indent(body.toString(), 1));
+        out.append("    endReached = true;\n");
+        out.append("    endReached_label:\n");
+        out.append("    skip;\n");
+        out.append("}\n");
+
+        return out.toString();
+    }
+
+    @Override
+    public String visitSupportedStatements(HashParser.SupportedStatementsContext ctx) {
+        if (ctx.assignmentsStatemetns() != null) {
+            return visit(ctx.assignmentsStatemetns());
+        }
+
+        if (ctx.defineVariableWithNoAssignmentStatement() != null) {
+            return visit(ctx.defineVariableWithNoAssignmentStatement());
+        }
+
+        if (ctx.definedAssignment() != null) {
+            return visit(ctx.definedAssignment());
+        }
+
+        if (ctx.ifElseStatments() != null) {
+            return visit(ctx.ifElseStatments());
+        }
+
+        if (ctx.loopStatements() != null) {
+            return visit(ctx.loopStatements());
+        }
+
+        if (ctx.goToStatements() != null) {
+            return visit(ctx.goToStatements());
+        }
+
+        if (ctx.exceptionStatements() != null) {
+            return visit(ctx.exceptionStatements());
+        }
+
+        if (ctx.throwsException() != null) {
+            return visit(ctx.throwsException());
+        }
+
+        throw new UnsupportedOperationException(
+                "Unsupported statement in Project2 Promela subset: " + ctx.getText()
+        );
+    }
+
+    @Override
+    public String visitAssignmentsStatemetns(HashParser.AssignmentsStatemetnsContext ctx) {
+        String type = mapType(ctx.type().getText());
+        String name = ctx.IDENTIFIER().getText();
+        String op = ctx.ASSIGNMENT().getText();
+        String expr = translateExpr(ctx.expression());
+
+        declareGlobal(type, name);
+
+        return assignmentLine(name, op, expr);
+    }
+
+    @Override
+    public String visitDefineVariableWithNoAssignmentStatement(
+            HashParser.DefineVariableWithNoAssignmentStatementContext ctx
+    ) {
+        String type = mapType(ctx.type().getText());
+        String name = ctx.IDENTIFIER().getText();
+
+        declareGlobal(type, name);
+
+        return "";
+    }
+
+    @Override
+    public String visitDefinedAssignment(HashParser.DefinedAssignmentContext ctx) {
+        return visit(ctx.update()) + ";\n";
+    }
+
+    @Override
+    public String visitUpdate(HashParser.UpdateContext ctx) {
+        String name = ctx.IDENTIFIER().getText();
+        String op = ctx.ASSIGNMENT().getText();
+        String expr = translateExpr(ctx.expression());
+
+        return assignmentLineWithoutSemicolon(name, op, expr);
+    }
+
+    @Override
+    public String visitIfElseStatments(HashParser.IfElseStatmentsContext ctx) {
+        String condition = translateExpr(ctx.condition());
+
+        List<HashParser.SupportedStatementsContext> thenStatements = new ArrayList<>();
+        List<HashParser.SupportedStatementsContext> elseStatements = new ArrayList<>();
+
+        splitIfChildrenSupported(ctx, thenStatements, elseStatements);
+
+        String thenBlock = renderBlock(thenStatements);
+        String elseBlock = renderBlock(elseStatements);
+
+        StringBuilder out = new StringBuilder();
+        out.append("if\n");
+        out.append(":: (").append(condition).append(") ->\n");
+        out.append(indent(thenBlock, 1));
+        out.append(":: else ->\n");
+        out.append(indent(elseBlock, 1));
+        out.append("fi;\n");
+
+        return out.toString();
+    }
+
+
+    @Override
+    public String visitLoopStatements(HashParser.LoopStatementsContext ctx) {
+        if (ctx.whileStatement() != null) {
+            return visit(ctx.whileStatement());
+        }
+
+        if (ctx.forStatement() != null) {
+            return visit(ctx.forStatement());
+        }
+
+        throw new UnsupportedOperationException("Unknown loop statement: " + ctx.getText());
+    }
+
+    @Override
+    public String visitWhileStatement(HashParser.WhileStatementContext ctx) {
+        int id = ++loopCounter;
+
+        String startLabel = "loop_start_" + id;
+        String inLoopLabel = "inLoop_" + id;
+        String exitLabel = "exitLoop_" + id;
+
+        continueLabelStack.push(startLabel);
+
+        String condition = translateExpr(ctx.condition());
+        String body = renderBlock(ctx.supportedStatements());
+
+        continueLabelStack.pop();
+
+        StringBuilder out = new StringBuilder();
+
+        out.append(startLabel).append(":\n");
+        out.append("do\n");
+        out.append(":: (").append(condition).append(") ->\n");
+        out.append("    ").append(inLoopLabel).append(":\n");
+        out.append(indent(body, 1));
+        out.append(":: else -> break\n");
+        out.append("od;\n");
+        out.append(exitLabel).append(":\n");
+        out.append("skip;\n");
+
+        return out.toString();
+    }
+
+    @Override
+    public String visitForStatement(HashParser.ForStatementContext ctx) {
+        int id = ++loopCounter;
+
+        String startLabel = "loop_start_" + id;
+        String updateLabel = "loop_update_" + id;
+        String inLoopLabel = "inLoop_" + id;
+        String exitLabel = "exitLoop_" + id;
+
+        String init = visit(ctx.assignmentsStatemetns());
+        String condition = translateExpr(ctx.condition());
+        String update = visit(ctx.update()) + ";\n";
+
+        continueLabelStack.push(updateLabel);
+
+        String body = renderBlock(ctx.supportedStatements());
+
+        continueLabelStack.pop();
+
+        StringBuilder out = new StringBuilder();
+
+        out.append(init);
+        out.append(startLabel).append(":\n");
+        out.append("do\n");
+        out.append(":: (").append(condition).append(") ->\n");
+        out.append("    ").append(inLoopLabel).append(":\n");
+        out.append(indent(body, 1));
+        out.append("    ").append(updateLabel).append(":\n");
+        out.append(indent(update, 1));
+        out.append(":: else -> break\n");
+        out.append("od;\n");
+        out.append(exitLabel).append(":\n");
+        out.append("skip;\n");
+
+        return out.toString();
+    }
+
+    @Override
+    public String visitGoToStatements(HashParser.GoToStatementsContext ctx) {
+        if (ctx.BREAK() != null) {
+            return "break;\n";
+        }
+
+        if (ctx.CONTINUE() != null) {
+            if (continueLabelStack.isEmpty()) {
+                throw new IllegalStateException("edame used outside loop."); // can't possible to happen
+            }
+
+            return "goto " + continueLabelStack.peek() + ";\n";
+        }
+
+        throw new UnsupportedOperationException("Unknown goto statement: " + ctx.getText());
+    }
+
+    @Override
+    public String visitExceptionStatements(HashParser.ExceptionStatementsContext ctx) {
+        int id = ++exceptionCounter;
+        String errFlag = "err_" + id;
+
+        declareGlobalWithInit("bool", errFlag, "false");
+
+        String tryBlock = renderBlock(ctx.supportedStatements());
+
+
+        String catchBlock = "skip;\n";
+        if (!ctx.catchClause().isEmpty()) {
+            catchBlock = visit(ctx.catchClause(0));
+        }
+
+        String finallyBlock = "";
+        if (ctx.finallyClause() != null) {
+            finallyBlock = visit(ctx.finallyClause());
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        out.append(errFlag).append(" = false;\n");
+        out.append("/* emtehan block */\n");
+        out.append(tryBlock);
+
+        out.append("if\n");
+        out.append(":: (").append(errFlag).append(") ->\n");
+        out.append(indent(catchBlock, 1));
+        out.append(":: else -> skip\n");
+        out.append("fi;\n");
+
+        if (!finallyBlock.isBlank()) {
+            out.append("/* akhar block */\n");
+            out.append(finallyBlock);
+        }
+
+        return out.toString();
+    }
+
+    @Override
+    public String visitCatchClause(HashParser.CatchClauseContext ctx) {
+        return renderBlock(ctx.supportedStatements());
+    }
+
+    @Override
+    public String visitFinallyClause(HashParser.FinallyClauseContext ctx) {
+        return renderBlock(ctx.supportedStatements());
+    }
+
+    @Override
+    public String visitThrowsException(HashParser.ThrowsExceptionContext ctx) {
+        return "divByZero = true;\n";
+    }
+
+    private String mapType(String hashType) {
+        return switch (hashType) {
+            case "adad" -> "int";
+            case "boole" -> "bool";
+            default -> throw new UnsupportedOperationException(
+                    "Type not supported in Project2 Promela subset: " + hashType
+            );
+        };
+    }
+
+    private String translateExpr(ParserRuleContext ctx) {
+        String expr = ctx.getText();
+
+        expr = expr.replaceAll("\\bdorost\\b", "true");
+        expr = expr.replaceAll("\\bghalat\\b", "false");
+
+        if (expr.contains("**")) {
+            throw new UnsupportedOperationException(
+                    "Power operator ** is not supported in this Promela translator yet: " + expr
+            );
+        }
+
+        return expr;
+    }
+
+    private String assignmentLine(String name, String op, String expr) {
+        return assignmentLineWithoutSemicolon(name, op, expr) + ";\n";
+    }
+
+    private String assignmentLineWithoutSemicolon(String name, String op, String expr) {
+        return switch (op) {
+            case "=" -> name + " = " + expr;
+            case "+=" -> name + " = " + name + " + (" + expr + ")";
+            case "-=" -> name + " = " + name + " - (" + expr + ")";
+            case "*=" -> name + " = " + name + " * (" + expr + ")";
+            case "/=" -> name + " = " + name + " / (" + expr + ")";
+            default -> throw new UnsupportedOperationException("Unsupported assignment operator: " + op);
+        };
+    }
+
+    private void declareGlobal(String type, String name) {
+        if (declaredGlobals.add(name)) {
+            globalDecls.append(type).append(" ").append(name).append(";\n");
+        }
+    }
+
+    private void declareGlobalWithInit(String type, String name, String value) {
+        if (declaredGlobals.add(name)) {
+            globalDecls.append(type).append(" ").append(name).append(" = ").append(value).append(";\n");
+        }
+    }
+
+    private String renderBlock(List<? extends ParserRuleContext> statements) {
+        StringBuilder out = new StringBuilder();
+
+        for (ParserRuleContext st : statements) {
+            String code = visit(st);
+            if (code != null && !code.isBlank()) {
+                out.append(code);
+            }
+        }
+
+        if (out.toString().isBlank()) {
+            return "skip;\n";
+        }
+
+        return out.toString();
+    }
+
+    private String indent(String code, int level) {
+        String prefix = "    ".repeat(level);
+        StringBuilder out = new StringBuilder();
+
+        String[] lines = code.split("\\R", -1);
+
+        for (String line : lines) {
+            if (!line.isBlank()) {
+                out.append(prefix).append(line);
+            }
+            out.append("\n");
+        }
+
+        return out.toString();
+    }
+
+    private void splitIfChildrenSupported(
+            HashParser.IfElseStatmentsContext ctx,
+            List<HashParser.SupportedStatementsContext> thenStatements,
+            List<HashParser.SupportedStatementsContext> elseStatements
+    ) {
+        boolean collectingThen = false;
+        boolean collectingElse = false;
+        boolean seenElse = false;
+
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            String text = child.getText();
+
+            if ("vagarna".equals(text)) {
+                seenElse = true;
+                collectingThen = false;
+                continue;
+            }
+
+            if ("{".equals(text)) {
+                if (seenElse) {
+                    collectingElse = true;
+                } else {
+                    collectingThen = true;
+                }
+                continue;
+            }
+
+            if ("}".equals(text)) {
+                collectingThen = false;
+                collectingElse = false;
+                continue;
+            }
+
+            if (child instanceof HashParser.SupportedStatementsContext st) {
+                if (collectingElse) {
+                    elseStatements.add(st);
+                } else if (collectingThen) {
+                    thenStatements.add(st);
+                }
+            }
+        }
+    }
+
+}
