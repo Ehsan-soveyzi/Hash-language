@@ -55,7 +55,7 @@ public class SemanticChecker extends HashBaseListener {
 
     private void error(int line, String message) {
         hasErrors = true;
-        System.out.println("Semantic Error line " + line + ": " + message);
+        System.err.println("Semantic Error line " + line + ": " + message);
     }
 
     @Override
@@ -82,14 +82,14 @@ public class SemanticChecker extends HashBaseListener {
 
     @Override
     public void enterThrowsException(HashParser.ThrowsExceptionContext ctx) {
-        String exceptionName = ctx.exceptionType().IDENTIFIER().getText();
+        String exceptionName = ctx.exceptionType().CLASS_IDENTIFIER().getText();
 
         validateExceptionType(ctx.start.getLine(), exceptionName);
     }
 
     @Override
     public void enterCatchClause(HashParser.CatchClauseContext ctx) {
-        String exceptionName = ctx.exceptionType().IDENTIFIER().getText();
+        String exceptionName = ctx.exceptionType().CLASS_IDENTIFIER().getText();
         String catchVariableName = ctx.IDENTIFIER().getText();
 
         validateExceptionType(ctx.start.getLine(), exceptionName);
@@ -119,7 +119,7 @@ public class SemanticChecker extends HashBaseListener {
 
     @Override
     public void enterCustomExceptionStatement(HashParser.CustomExceptionStatementContext ctx) {
-        String exceptionName = ctx.IDENTIFIER().getText();
+        String exceptionName = ctx.CLASS_IDENTIFIER().getText();
 
         if (!Character.isUpperCase(exceptionName.charAt(0))) {
             error(
@@ -173,9 +173,9 @@ public class SemanticChecker extends HashBaseListener {
            error(ctx.start.getLine(), "Function must start with an lowerCase character.");
         }
 
-        if (!functions.containsKey(functionName)) {
+//        if (!functions.containsKey(functionName)) {
 //            registerFunctionSignature(ctx);
-        }
+//        }
 
         FunctionInfo info = functions.get(functionName);
 
@@ -255,9 +255,9 @@ public class SemanticChecker extends HashBaseListener {
 
     @Override
     public void enterInstantiationStatement(HashParser.InstantiationStatementContext ctx) {
-        String declaredClassName = ctx.IDENTIFIER(0).getText();
-        String objectName = ctx.IDENTIFIER(1).getText();
-        String newClassName = ctx.IDENTIFIER(2).getText();
+        String declaredClassName = ctx.CLASS_IDENTIFIER(0).getText();
+        String objectName = ctx.IDENTIFIER().getText();
+        String newClassName = ctx.CLASS_IDENTIFIER(1).getText();
 
         if (!classes.containsKey(declaredClassName)) {
             error(ctx.start.getLine(), "Class '" + declaredClassName + "' is not defined.");
@@ -296,10 +296,10 @@ public class SemanticChecker extends HashBaseListener {
 
     @Override
     public void enterClassStatement(HashParser.ClassStatementContext ctx) {
-        if(!Character.isUpperCase(ctx.IDENTIFIER().getText().charAt(0))) {
-            error(ctx.getStart().getLine(), "Class '" + ctx.IDENTIFIER().getText() + "' is not a valid class name.");
+        if(!Character.isUpperCase(ctx.CLASS_IDENTIFIER().getText().charAt(0))) {
+            error(ctx.getStart().getLine(), "Class '" + ctx.CLASS_IDENTIFIER().getText() + "' is not a valid class name.");
         }
-        currentClassStack.push(ctx.IDENTIFIER().getText());
+        currentClassStack.push(ctx.CLASS_IDENTIFIER().getText());
     }
 
     @Override
@@ -669,11 +669,7 @@ public class SemanticChecker extends HashBaseListener {
         }
 
         // ashari can accept adad.
-        if (declaredType.equals("ashari") && expressionType.equals("adad")) {
-            return true;
-        }
-
-        return false;
+        return (declaredType.equals("ashari") && expressionType.equals("adad"));
     }
 
 // ------------------------------------------------------------
@@ -1105,7 +1101,7 @@ public class SemanticChecker extends HashBaseListener {
     }
 
     private void registerClassSignature(HashParser.ClassStatementContext ctx) {
-        String className = ctx.IDENTIFIER().getText();
+        String className = ctx.CLASS_IDENTIFIER().getText();
 
         if (classes.containsKey(className)) {
             error(ctx.start.getLine(), "Class '" + className + "' is already defined.");
@@ -1157,7 +1153,7 @@ public class SemanticChecker extends HashBaseListener {
             if (member.constructorDeclaration() != null) {
                 HashParser.ConstructorDeclarationContext constructor = member.constructorDeclaration();
 
-                String constructorName = constructor.IDENTIFIER().getText();
+                String constructorName = constructor.CLASS_IDENTIFIER().getText();
 
                 if (!constructorName.equals(className)) {
                     error(constructor.start.getLine(), "Constructor name '" + constructorName + "' must be same as class name '" + className + "'.");

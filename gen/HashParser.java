@@ -1,4 +1,4 @@
-// Generated from D:/ehsan/university/term4/language & machin theorem/hash_language/Hash_language_proje/src/Hash.g4 by ANTLR 4.13.2
+// Generated from E:/uni/term4/nazarie/antlr/prj2/Hash-language/src/Hash.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -24,7 +24,8 @@ public class HashParser extends Parser {
 		ASSIGNMENT=40, DIVISION=41, MULTIPLICATION=42, NOT=43, DOT=44, COMMA=45, 
 		MODULO=46, POWER=47, EQUALITY=48, COMPARITIONAL=49, LOGICAL_OR=50, LOGICAL_AND=51, 
 		INCREEMENT=52, DECREEMENT=53, INT_LITERAL=54, FLOAT_LITERAL=55, STRING_LITERAL=56, 
-		CHAR_LITERAL=57, IDENTIFIER=58, LINE_COMMENT=59, BLOCK_COMMENT=60, WS=61;
+		CHAR_LITERAL=57, IDENTIFIER=58, CLASS_IDENTIFIER=59, LINE_COMMENT=60, 
+		BLOCK_COMMENT=61, WS=62;
 	public static final int
 		RULE_startState = 0, RULE_supportedStatements = 1, RULE_importStatements = 2, 
 		RULE_moduleStatements = 3, RULE_definedAssignment = 4, RULE_assignmentsStatemetns = 5, 
@@ -90,7 +91,7 @@ public class HashParser extends Parser {
 			"MULTIPLICATION", "NOT", "DOT", "COMMA", "MODULO", "POWER", "EQUALITY", 
 			"COMPARITIONAL", "LOGICAL_OR", "LOGICAL_AND", "INCREEMENT", "DECREEMENT", 
 			"INT_LITERAL", "FLOAT_LITERAL", "STRING_LITERAL", "CHAR_LITERAL", "IDENTIFIER", 
-			"LINE_COMMENT", "BLOCK_COMMENT", "WS"
+			"CLASS_IDENTIFIER", "LINE_COMMENT", "BLOCK_COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -215,7 +216,7 @@ public class HashParser extends Parser {
 			setState(134);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(131);
@@ -797,7 +798,7 @@ public class HashParser extends Parser {
 			setState(190);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(187);
@@ -822,7 +823,7 @@ public class HashParser extends Parser {
 				setState(199);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 					{
 					{
 					setState(196);
@@ -1041,7 +1042,7 @@ public class HashParser extends Parser {
 			setState(224);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(221);
@@ -1282,7 +1283,7 @@ public class HashParser extends Parser {
 				setState(259);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 					{
 					{
 					setState(256);
@@ -1316,7 +1317,7 @@ public class HashParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class ClassStatementContext extends ParserRuleContext {
 		public TerminalNode CLASS() { return getToken(HashParser.CLASS, 0); }
-		public TerminalNode IDENTIFIER() { return getToken(HashParser.IDENTIFIER, 0); }
+		public TerminalNode CLASS_IDENTIFIER() { return getToken(HashParser.CLASS_IDENTIFIER, 0); }
 		public TerminalNode OB() { return getToken(HashParser.OB, 0); }
 		public TerminalNode CB() { return getToken(HashParser.CB, 0); }
 		public List<ClassMemberContext> classMember() {
@@ -1354,7 +1355,7 @@ public class HashParser extends Parser {
 			setState(267);
 			match(CLASS);
 			setState(268);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			setState(269);
 			match(OB);
 			setState(273);
@@ -1448,10 +1449,11 @@ public class HashParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class InstantiationStatementContext extends ParserRuleContext {
-		public List<TerminalNode> IDENTIFIER() { return getTokens(HashParser.IDENTIFIER); }
-		public TerminalNode IDENTIFIER(int i) {
-			return getToken(HashParser.IDENTIFIER, i);
+		public List<TerminalNode> CLASS_IDENTIFIER() { return getTokens(HashParser.CLASS_IDENTIFIER); }
+		public TerminalNode CLASS_IDENTIFIER(int i) {
+			return getToken(HashParser.CLASS_IDENTIFIER, i);
 		}
+		public TerminalNode IDENTIFIER() { return getToken(HashParser.IDENTIFIER, 0); }
 		public TerminalNode ASSIGNMENT() { return getToken(HashParser.ASSIGNMENT, 0); }
 		public TerminalNode NEW() { return getToken(HashParser.NEW, 0); }
 		public TerminalNode OP() { return getToken(HashParser.OP, 0); }
@@ -1487,7 +1489,7 @@ public class HashParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(285);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			setState(286);
 			match(IDENTIFIER);
 			setState(287);
@@ -1495,7 +1497,7 @@ public class HashParser extends Parser {
 			setState(288);
 			match(NEW);
 			setState(289);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			setState(290);
 			match(OP);
 			setState(292);
@@ -1782,7 +1784,7 @@ public class HashParser extends Parser {
 				setState(328);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 					{
 					{
 					setState(325);
@@ -1831,7 +1833,7 @@ public class HashParser extends Parser {
 				setState(345);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 					{
 					{
 					setState(342);
@@ -1921,7 +1923,7 @@ public class HashParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class CustomExceptionStatementContext extends ParserRuleContext {
 		public TerminalNode CLASS() { return getToken(HashParser.CLASS, 0); }
-		public TerminalNode IDENTIFIER() { return getToken(HashParser.IDENTIFIER, 0); }
+		public TerminalNode CLASS_IDENTIFIER() { return getToken(HashParser.CLASS_IDENTIFIER, 0); }
 		public TerminalNode SEMICOLEN() { return getToken(HashParser.SEMICOLEN, 0); }
 		public CustomExceptionStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1951,7 +1953,7 @@ public class HashParser extends Parser {
 			setState(358);
 			match(CLASS);
 			setState(359);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			setState(360);
 			match(SEMICOLEN);
 			}
@@ -2142,7 +2144,7 @@ public class HashParser extends Parser {
 			setState(382);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(379);
@@ -2212,7 +2214,7 @@ public class HashParser extends Parser {
 			setState(392);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(389);
@@ -2340,7 +2342,7 @@ public class HashParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class ExceptionTypeContext extends ParserRuleContext {
-		public TerminalNode IDENTIFIER() { return getToken(HashParser.IDENTIFIER, 0); }
+		public TerminalNode CLASS_IDENTIFIER() { return getToken(HashParser.CLASS_IDENTIFIER, 0); }
 		public ExceptionTypeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2367,7 +2369,7 @@ public class HashParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(405);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -2501,7 +2503,7 @@ public class HashParser extends Parser {
 			setState(422);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(419);
@@ -2595,7 +2597,7 @@ public class HashParser extends Parser {
 			setState(438);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(435);
@@ -2676,7 +2678,7 @@ public class HashParser extends Parser {
 			setState(451);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(448);
@@ -2895,7 +2897,7 @@ public class HashParser extends Parser {
 			setState(477);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(474);
@@ -2924,7 +2926,7 @@ public class HashParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class ConstructorDeclarationContext extends ParserRuleContext {
 		public TerminalNode DEFINE() { return getToken(HashParser.DEFINE, 0); }
-		public TerminalNode IDENTIFIER() { return getToken(HashParser.IDENTIFIER, 0); }
+		public TerminalNode CLASS_IDENTIFIER() { return getToken(HashParser.CLASS_IDENTIFIER, 0); }
 		public TerminalNode OP() { return getToken(HashParser.OP, 0); }
 		public TerminalNode CP() { return getToken(HashParser.CP, 0); }
 		public TerminalNode OB() { return getToken(HashParser.OB, 0); }
@@ -2967,7 +2969,7 @@ public class HashParser extends Parser {
 			setState(482);
 			match(DEFINE);
 			setState(483);
-			match(IDENTIFIER);
+			match(CLASS_IDENTIFIER);
 			setState(484);
 			match(OP);
 			setState(486);
@@ -2987,7 +2989,7 @@ public class HashParser extends Parser {
 			setState(493);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 288230383834767320L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 864691136138190808L) != 0)) {
 				{
 				{
 				setState(490);
@@ -4546,7 +4548,7 @@ public class HashParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001=\u026f\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001>\u026f\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
@@ -4743,7 +4745,7 @@ public class HashParser extends Parser {
 		"\u0000\u0000\u0106\u0108\u0005$\u0000\u0000\u0107\u00fe\u0001\u0000\u0000"+
 		"\u0000\u0107\u0108\u0001\u0000\u0000\u0000\u0108\u0109\u0001\u0000\u0000"+
 		"\u0000\u0109\u010a\u0005$\u0000\u0000\u010a\u001b\u0001\u0000\u0000\u0000"+
-		"\u010b\u010c\u0005\u0003\u0000\u0000\u010c\u010d\u0005:\u0000\u0000\u010d"+
+		"\u010b\u010c\u0005\u0003\u0000\u0000\u010c\u010d\u0005;\u0000\u0000\u010d"+
 		"\u0111\u0005#\u0000\u0000\u010e\u0110\u0003D\"\u0000\u010f\u010e\u0001"+
 		"\u0000\u0000\u0000\u0110\u0113\u0001\u0000\u0000\u0000\u0111\u010f\u0001"+
 		"\u0000\u0000\u0000\u0111\u0112\u0001\u0000\u0000\u0000\u0112\u0114\u0001"+
@@ -4752,8 +4754,8 @@ public class HashParser extends Parser {
 		"\u0000\u0000\u0117\u0118\u0005,\u0000\u0000\u0118\u0119\u0005:\u0000\u0000"+
 		"\u0119\u011a\u0005(\u0000\u0000\u011a\u011b\u0003T*\u0000\u011b\u011c"+
 		"\u0005\'\u0000\u0000\u011c\u001f\u0001\u0000\u0000\u0000\u011d\u011e\u0005"+
-		":\u0000\u0000\u011e\u011f\u0005:\u0000\u0000\u011f\u0120\u0005(\u0000"+
-		"\u0000\u0120\u0121\u0005\u0005\u0000\u0000\u0121\u0122\u0005:\u0000\u0000"+
+		";\u0000\u0000\u011e\u011f\u0005:\u0000\u0000\u011f\u0120\u0005(\u0000"+
+		"\u0000\u0120\u0121\u0005\u0005\u0000\u0000\u0121\u0122\u0005;\u0000\u0000"+
 		"\u0122\u0124\u0005!\u0000\u0000\u0123\u0125\u0003P(\u0000\u0124\u0123"+
 		"\u0001\u0000\u0000\u0000\u0124\u0125\u0001\u0000\u0000\u0000\u0125\u0126"+
 		"\u0001\u0000\u0000\u0000\u0126\u0127\u0005\"\u0000\u0000\u0127\u0128\u0005"+
@@ -4789,7 +4791,7 @@ public class HashParser extends Parser {
 		"\u0160\u0161\u0005\u001e\u0000\u0000\u0161\u0162\u0003:\u001d\u0000\u0162"+
 		"\u0163\u0005!\u0000\u0000\u0163\u0164\u0005\"\u0000\u0000\u0164\u0165"+
 		"\u0005\'\u0000\u0000\u0165+\u0001\u0000\u0000\u0000\u0166\u0167\u0005"+
-		"\u0003\u0000\u0000\u0167\u0168\u0005:\u0000\u0000\u0168\u0169\u0005\'"+
+		"\u0003\u0000\u0000\u0167\u0168\u0005;\u0000\u0000\u0168\u0169\u0005\'"+
 		"\u0000\u0000\u0169-\u0001\u0000\u0000\u0000\u016a\u016f\u00030\u0018\u0000"+
 		"\u016b\u016c\u0005-\u0000\u0000\u016c\u016e\u00030\u0018\u0000\u016d\u016b"+
 		"\u0001\u0000\u0000\u0000\u016e\u0171\u0001\u0000\u0000\u0000\u016f\u016d"+
@@ -4811,7 +4813,7 @@ public class HashParser extends Parser {
 		"\u0000\u0000\u0000\u018d\u018e\u0005:\u0000\u0000\u018e\u018f\u0005,\u0000"+
 		"\u0000\u018f\u0190\u0005:\u0000\u0000\u01907\u0001\u0000\u0000\u0000\u0191"+
 		"\u0192\u0005\u0004\u0000\u0000\u0192\u0193\u0005,\u0000\u0000\u0193\u0194"+
-		"\u0005:\u0000\u0000\u01949\u0001\u0000\u0000\u0000\u0195\u0196\u0005:"+
+		"\u0005:\u0000\u0000\u01949\u0001\u0000\u0000\u0000\u0195\u0196\u0005;"+
 		"\u0000\u0000\u0196;\u0001\u0000\u0000\u0000\u0197\u0198\u0005:\u0000\u0000"+
 		"\u0198\u0199\u0005,\u0000\u0000\u0199\u019a\u0005:\u0000\u0000\u019a\u019c"+
 		"\u0005!\u0000\u0000\u019b\u019d\u0003P(\u0000\u019c\u019b\u0001\u0000"+
@@ -4851,7 +4853,7 @@ public class HashParser extends Parser {
 		"\u0001\u0000\u0000\u0000\u01dd\u01de\u0001\u0000\u0000\u0000\u01de\u01e0"+
 		"\u0001\u0000\u0000\u0000\u01df\u01dd\u0001\u0000\u0000\u0000\u01e0\u01e1"+
 		"\u0005$\u0000\u0000\u01e1I\u0001\u0000\u0000\u0000\u01e2\u01e3\u0005\u0006"+
-		"\u0000\u0000\u01e3\u01e4\u0005:\u0000\u0000\u01e4\u01e6\u0005!\u0000\u0000"+
+		"\u0000\u0000\u01e3\u01e4\u0005;\u0000\u0000\u01e4\u01e6\u0005!\u0000\u0000"+
 		"\u01e5\u01e7\u0003.\u0017\u0000\u01e6\u01e5\u0001\u0000\u0000\u0000\u01e6"+
 		"\u01e7\u0001\u0000\u0000\u0000\u01e7\u01e8\u0001\u0000\u0000\u0000\u01e8"+
 		"\u01e9\u0005\"\u0000\u0000\u01e9\u01ed\u0005#\u0000\u0000\u01ea\u01ec"+

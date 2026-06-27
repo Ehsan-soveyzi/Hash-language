@@ -1,4 +1,4 @@
-// Generated from D:/ehsan/university/term4/language & machin theorem/hash_language/Hash_language_proje/src/Hash.g4 by ANTLR 4.13.2
+// Generated from E:/uni/term4/nazarie/antlr/prj2/Hash-language/src/Hash.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

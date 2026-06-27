@@ -1,17 +1,1 @@
-baste somthing;
-
-
-adad x = 2;
-
-emtehan{
-
-    bendaz Sefrbood();
-}gereftar(sefrbood e){
-
-}akhar{
-
-
-}
-
-
-
+klass SefrBood {}

@@ -90,7 +90,7 @@ switchStatements
 
 
 classStatement
-    : CLASS IDENTIFIER OB classMember* CB
+    : CLASS CLASS_IDENTIFIER OB classMember* CB
     ;
 
 thisAssignment
@@ -98,7 +98,7 @@ thisAssignment
     ;
 
 instantiationStatement
-    : IDENTIFIER IDENTIFIER ASSIGNMENT NEW IDENTIFIER OP argumentList? CP SEMICOLEN
+    : CLASS_IDENTIFIER IDENTIFIER ASSIGNMENT NEW CLASS_IDENTIFIER OP argumentList? CP SEMICOLEN
     ;
 
 objectFieldAssignment
@@ -123,7 +123,7 @@ throwsException
     ;
 
 customExceptionStatement
-    : CLASS IDENTIFIER SEMICOLEN
+    : CLASS CLASS_IDENTIFIER SEMICOLEN
     ;
 
 
@@ -154,7 +154,7 @@ thisFieldAccess
     ;
 
 exceptionType
-    : IDENTIFIER
+    : CLASS_IDENTIFIER
     ;
 
 
@@ -189,7 +189,7 @@ classMethodDeclaration
     ;
 
 constructorDeclaration
-    : DEFINE IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
+    : DEFINE CLASS_IDENTIFIER OP functionParameters? CP OB supportedStatements* CB
     ;
 
 condition
@@ -350,6 +350,11 @@ THROWS : 'bendaz';
 PRINT : 'bechap';
 INPUT : 'bekhan';
 
+/* ............ exceptions ............ */
+DIV_BY_ZERO : 'SefrBood';
+OUT_OF_BOUND : 'MahdoodeNadorost';
+NULL_POINTER : 'JadvalKhali';
+NO_PERM : 'GheireMojaz';
 
 /* ............ rest supported words(not known as key words) ............ */
 OP : '(';
@@ -379,7 +384,8 @@ FLOAT_LITERAL : [0-9]+ '.' [0-9]+;
 STRING_LITERAL : '"' ~["\r\n]* '"';
 CHAR_LITERAL : '\'' . '\'';
 
-IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]*;
+IDENTIFIER : [a-z_][a-zA-Z0-9_]*;
+CLASS_IDENTIFIER : [A-Z][a-zA-Z0-9_]*;
 
 
 /* ..................... AGNORABLE_STATEMENTS ................... */
