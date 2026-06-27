@@ -9,7 +9,6 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     private final Set<String> declaredGlobals = new HashSet<>();
 
     private int loopCounter = 0;
-    private int exceptionCounter = 0;
 
     private final Stack<String> continueLabelStack = new Stack<>();
 
@@ -19,8 +18,11 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     @Override
     public String visitStartState(HashParser.StartStateContext ctx) {
-        declareGlobalWithInit("bool", "divByZero", "false");
-        declareGlobalWithInit("bool", "endReached", "false");
+        declareGlobalWithInit("divByZero");
+        declareGlobalWithInit("outOfBound");
+        declareGlobalWithInit("nullPointer");
+        declareGlobalWithInit("noPermission");
+        declareGlobalWithInit("endReached");
 
         StringBuilder body = new StringBuilder();
 
@@ -31,19 +33,14 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
             }
         }
 
-        StringBuilder out = new StringBuilder();
-
-        out.append("/* Generated Promela model from Hash */\n\n");
-        out.append(globalDecls).append("\n");
-
-        out.append("active proctype main() {\n");
-        out.append(indent(body.toString(), 1));
-        out.append("    endReached = true;\n");
-        out.append("    endReached_label:\n");
-        out.append("    skip;\n");
-        out.append("}\n");
-
-        return out.toString();
+        return "/* Generated Promela model from Hash */\n\n" +
+                globalDecls + "\n" +
+                "active proctype main() {\n" +
+                indent(body.toString()) +
+                "    endReached = true;\n" +
+                "    endReached_label:\n" +
+                "    skip;\n" +
+                "}\n";
     }
 
     @Override
@@ -135,15 +132,12 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String thenBlock = renderBlock(thenStatements);
         String elseBlock = renderBlock(elseStatements);
 
-        StringBuilder out = new StringBuilder();
-        out.append("if\n");
-        out.append(":: (").append(condition).append(") ->\n");
-        out.append(indent(thenBlock, 1));
-        out.append(":: else ->\n");
-        out.append(indent(elseBlock, 1));
-        out.append("fi;\n");
-
-        return out.toString();
+        return "if\n" +
+                ":: (" + condition + ") ->\n" +
+                indent(thenBlock) +
+                ":: else ->\n" +
+                indent(elseBlock) +
+                "fi;\n";
     }
 
 
@@ -175,19 +169,15 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
         continueLabelStack.pop();
 
-        StringBuilder out = new StringBuilder();
-
-        out.append(startLabel).append(":\n");
-        out.append("do\n");
-        out.append(":: (").append(condition).append(") ->\n");
-        out.append("    ").append(inLoopLabel).append(":\n");
-        out.append(indent(body, 1));
-        out.append(":: else -> break\n");
-        out.append("od;\n");
-        out.append(exitLabel).append(":\n");
-        out.append("skip;\n");
-
-        return out.toString();
+        return startLabel + ":\n" +
+                "do\n" +
+                ":: (" + condition + ") ->\n" +
+                "    " + inLoopLabel + ":\n" +
+                indent(body) +
+                ":: else -> break\n" +
+                "od;\n" +
+                exitLabel + ":\n" +
+                "skip;\n";
     }
 
     @Override
@@ -209,22 +199,18 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
         continueLabelStack.pop();
 
-        StringBuilder out = new StringBuilder();
-
-        out.append(init);
-        out.append(startLabel).append(":\n");
-        out.append("do\n");
-        out.append(":: (").append(condition).append(") ->\n");
-        out.append("    ").append(inLoopLabel).append(":\n");
-        out.append(indent(body, 1));
-        out.append("    ").append(updateLabel).append(":\n");
-        out.append(indent(update, 1));
-        out.append(":: else -> break\n");
-        out.append("od;\n");
-        out.append(exitLabel).append(":\n");
-        out.append("skip;\n");
-
-        return out.toString();
+        return init +
+                startLabel + ":\n" +
+                "do\n" +
+                ":: (" + condition + ") ->\n" +
+                "    " + inLoopLabel + ":\n" +
+                indent(body) +
+                "    " + updateLabel + ":\n" +
+                indent(update) +
+                ":: else -> break\n" +
+                "od;\n" +
+                exitLabel + ":\n" +
+                "skip;\n";
     }
 
     @Override
@@ -246,35 +232,21 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     @Override
     public String visitExceptionStatements(HashParser.ExceptionStatementsContext ctx) {
-        int id = ++exceptionCounter;
-        String errFlag = "err_" + id;
-
-        declareGlobalWithInit("bool", errFlag, "false");
-
         String tryBlock = renderBlock(ctx.supportedStatements());
 
+        StringBuilder out = new StringBuilder();
 
-        String catchBlock = "skip;\n";
+        out.append("/* emtehan block */\n");
+        out.append(tryBlock);
+
         if (!ctx.catchClause().isEmpty()) {
-            catchBlock = visit(ctx.catchClause(0));
+            out.append(visit(ctx.catchClause(0)));
         }
 
         String finallyBlock = "";
         if (ctx.finallyClause() != null) {
             finallyBlock = visit(ctx.finallyClause());
         }
-
-        StringBuilder out = new StringBuilder();
-
-        out.append(errFlag).append(" = false;\n");
-        out.append("/* emtehan block */\n");
-        out.append(tryBlock);
-
-        out.append("if\n");
-        out.append(":: (").append(errFlag).append(") ->\n");
-        out.append(indent(catchBlock, 1));
-        out.append(":: else -> skip\n");
-        out.append("fi;\n");
 
         if (!finallyBlock.isBlank()) {
             out.append("/* akhar block */\n");
@@ -286,7 +258,22 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     @Override
     public String visitCatchClause(HashParser.CatchClauseContext ctx) {
-        return renderBlock(ctx.supportedStatements());
+        StringBuilder out = new StringBuilder();
+
+        String ex = ctx.exceptionType().getText();
+        String condition = exceptionFlag(ex);
+
+        List<HashParser.SupportedStatementsContext> catchStatements = new ArrayList<>(ctx.supportedStatements());
+        String catchBlock = renderBlock(catchStatements);
+
+        out.append("if\n");
+        out.append(":: (").append(condition).append(") ->\n");
+        out.append("    ").append(condition).append(" = false;\n");
+        out.append(indent(catchBlock));
+        out.append(":: else -> skip\n");
+        out.append("fi;\n");
+
+        return out.toString();
     }
 
     @Override
@@ -296,7 +283,17 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     @Override
     public String visitThrowsException(HashParser.ThrowsExceptionContext ctx) {
-        return "divByZero = true;\n";
+        String e = ctx.exceptionType().getText();
+        return switch (e) {
+            case "SefrBood" -> "divByZero = true;\n";
+            case "MahdoodeNadorost" -> "outOfBound = true;\n";
+            case "JadvalKhali" -> "nullPointer = true;\n";
+            case "GheireMojaz" -> "noPermission = true;\n";
+            default -> {
+                declareGlobalWithInit(e);
+                yield e + " = true;\n";
+            }
+        };
     }
 
     private String mapType(String hashType) {
@@ -345,9 +342,9 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         }
     }
 
-    private void declareGlobalWithInit(String type, String name, String value) {
+    private void declareGlobalWithInit(String name) {
         if (declaredGlobals.add(name)) {
-            globalDecls.append(type).append(" ").append(name).append(" = ").append(value).append(";\n");
+            globalDecls.append("bool").append(" ").append(name).append(" = ").append("false").append(";\n");
         }
     }
 
@@ -368,8 +365,8 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         return out.toString();
     }
 
-    private String indent(String code, int level) {
-        String prefix = "    ".repeat(level);
+    private String indent(String code) {
+        String prefix = "    ".repeat(1);
         StringBuilder out = new StringBuilder();
 
         String[] lines = code.split("\\R", -1);
@@ -428,4 +425,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         }
     }
 
+    private String exceptionFlag(String ex) {
+        return switch (ex) {
+            case "SefrBood" -> "divByZero";
+            case "MahdoodeNadorost" -> "outOfBound";
+            case "JadvalKhali" -> "nullPointer";
+            case "GheireMojaz" -> "noPermission";
+            default -> ex;
+        };
+    }
 }
