@@ -350,12 +350,6 @@ THROWS : 'bendaz';
 PRINT : 'bechap';
 INPUT : 'bekhan';
 
-/* ............ exceptions ............ */
-DIV_BY_ZERO : 'SefrBood';
-OUT_OF_BOUND : 'MahdoodeNadorost';
-NULL_POINTER : 'JadvalKhali';
-NO_PERM : 'GheireMojaz';
-
 /* ............ rest supported words(not known as key words) ............ */
 OP : '(';
 CP : ')';

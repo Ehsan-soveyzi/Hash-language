@@ -1,25 +1,44 @@
 /* Generated Promela model from Hash */
 
 bool divByZero = false;
+bool outOfBound = false;
+bool nullPointer = false;
+bool noPermission = false;
 bool endReached = false;
-int x;
-bool err_1 = false;
+int b;
+int c;
+int a;
 
 active proctype main() {
-    x = 2;
-    err_1 = false;
     /* emtehan block */
-    divByZero = true;
     if
-    :: (err_1) ->
+    :: (c == 0) ->
+       divByZero = true;
+       goto end_try_1;
+    :: else ->
+       skip;
+    fi;
+    a = b/c;
+    end_try_1:
+    if
+    :: (divByZero) ->
+        divByZero = false;
         skip;
 
     :: else -> skip
     fi;
     /* akhar block */
     skip;
+    if
+    :: (c == 0) ->
+       divByZero = true;
+       goto end_Reached;
+    :: else ->
+       skip;
+    fi;
+    a = b/c;
 
     endReached = true;
-    endReached_label:
+    end_Reached:
     skip;
 }
