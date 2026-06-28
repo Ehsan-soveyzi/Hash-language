@@ -7,10 +7,16 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     private final StringBuilder globalDecls = new StringBuilder();
     private final Set<String> declaredGlobals = new HashSet<>();
+    private final Stack<String> tryLabelStack = new Stack<>();
 
     private int loopCounter = 0;
+    private int tryIdx = 0;
 
     private final Stack<String> continueLabelStack = new Stack<>();
+
+    public PromelaTranslator(){
+        tryLabelStack.push("endReached_label");
+    }
 
     public String translate(HashParser.StartStateContext tree) {
         return visitStartState(tree);
@@ -91,7 +97,8 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
         declareGlobal(type, name);
 
-        return assignmentLine(name, op, expr);
+        String checks = generateDivisionChecks(ctx.expression());
+        return checks + assignmentLine(name, op, expr);
     }
 
     @Override
@@ -117,11 +124,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String op = ctx.ASSIGNMENT().getText();
         String expr = translateExpr(ctx.expression());
 
-        return assignmentLineWithoutSemicolon(name, op, expr);
+        String checks = generateDivisionChecks(ctx.expression());
+        return checks + assignmentLineWithoutSemicolon(name, op, expr) + ";\n";
     }
 
     @Override
     public String visitIfElseStatments(HashParser.IfElseStatmentsContext ctx) {
+        String checks = generateDivisionChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
 
         List<HashParser.SupportedStatementsContext> thenStatements = new ArrayList<>();
@@ -132,7 +141,8 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String thenBlock = renderBlock(thenStatements);
         String elseBlock = renderBlock(elseStatements);
 
-        return "if\n" +
+        return checks +
+                "if\n" +
                 ":: (" + condition + ") ->\n" +
                 indent(thenBlock) +
                 ":: else ->\n" +
@@ -164,12 +174,14 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
         continueLabelStack.push(startLabel);
 
+        String checks = generateDivisionChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
         String body = renderBlock(ctx.supportedStatements());
 
         continueLabelStack.pop();
 
-        return startLabel + ":\n" +
+        return checks +
+                startLabel + ":\n" +
                 "do\n" +
                 ":: (" + condition + ") ->\n" +
                 "    " + inLoopLabel + ":\n" +
@@ -190,6 +202,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String exitLabel = "exitLoop_" + id;
 
         String init = visit(ctx.assignmentsStatemetns());
+        String checks = generateDivisionChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
         String update = visit(ctx.update()) + ";\n";
 
@@ -200,6 +213,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         continueLabelStack.pop();
 
         return init +
+                checks +
                 startLabel + ":\n" +
                 "do\n" +
                 ":: (" + condition + ") ->\n" +
@@ -232,12 +246,18 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     @Override
     public String visitExceptionStatements(HashParser.ExceptionStatementsContext ctx) {
+        String tryLabel = "end_try_" + (++tryIdx);
+        tryLabelStack.push(tryLabel);
+
         String tryBlock = renderBlock(ctx.supportedStatements());
 
         StringBuilder out = new StringBuilder();
 
         out.append("/* emtehan block */\n");
         out.append(tryBlock);
+
+        out.append(tryLabel).append(":\n");
+        tryLabelStack.pop();
 
         if (!ctx.catchClause().isEmpty()) {
             out.append(visit(ctx.catchClause(0)));
@@ -284,7 +304,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     @Override
     public String visitThrowsException(HashParser.ThrowsExceptionContext ctx) {
         String e = ctx.exceptionType().getText();
-        return switch (e) {
+        String out = switch (e) {
             case "SefrBood" -> "divByZero = true;\n";
             case "MahdoodeNadorost" -> "outOfBound = true;\n";
             case "JadvalKhali" -> "nullPointer = true;\n";
@@ -294,6 +314,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 yield e + " = true;\n";
             }
         };
+        return out + "goto " + tryLabelStack.peek() + ";\n";
     }
 
     private String mapType(String hashType) {
@@ -322,6 +343,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     }
 
     private String assignmentLine(String name, String op, String expr) {
+        if (op.equals("/=")) return checkDevByZero(name, name, expr);
         return assignmentLineWithoutSemicolon(name, op, expr) + ";\n";
     }
 
@@ -433,5 +455,60 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
             case "GheireMojaz" -> "noPermission";
             default -> ex;
         };
+    }
+
+    private String generateDivisionChecks(ParserRuleContext ctx) {
+        List<String> divisors = new ArrayList<>();
+        findDivisions(ctx, divisors);
+
+        StringBuilder out = new StringBuilder();
+
+        for (String d : divisors) {
+            out.append(checkDivisionOnly(d));
+        }
+
+        return out.toString();
+    }
+
+    private void findDivisions(ParserRuleContext ctx, List<String> divisors) {
+
+        if (ctx instanceof HashParser.MultiplicativeExpressionContext mul) {
+
+            List<HashParser.PowerExpressionContext> exprs = mul.powerExpression();
+
+            for (int i = 0; i < mul.getChildCount(); i++) {
+
+                ParseTree child = mul.getChild(i);
+
+                if (child.getText().equals("/")) {
+                    divisors.add(exprs.get((i + 1) / 2).getText());
+                }
+            }
+        }
+
+        for (ParseTree child : ctx.children) {
+            if (child instanceof ParserRuleContext prc)
+                findDivisions(prc, divisors);
+        }
+    }
+
+    private String checkDivisionOnly(String divisor) {
+        return "if\n" +
+                ":: (" + divisor + " == 0) ->\n" +
+                "   divByZero = true;\n" +
+                "   goto " + tryLabelStack.peek() + ";\n" +
+                ":: else ->\n" +
+                "   skip;\n" +
+                "fi;\n";
+    }
+
+    private String checkDevByZero(String a, String b, String c){
+        return "if\n" +
+                ":: (" + c + " == 0) ->\n" +
+                "   divByZero = true;\n" +
+                "   goto " + tryLabelStack.peek() + ";\n" +
+                ":: else ->\n   " +
+                a + " = " + b + " / (" + c + ");\n" +
+                "fi;\n";
     }
 }
