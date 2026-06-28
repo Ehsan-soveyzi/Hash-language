@@ -3,7 +3,7 @@
 **Hash** is a small educational programming language designed as a course project for **Language and Automata Theory / Compiler Design**.  
 The project focuses on building a complete grammar using **ANTLR v4** and adding a semantic checking layer in **Java**.
 
-**Author:** Ehsan Soveizi  
+**Author:** Ehsan Soveizi & Mahdi Rashidi
 
 ---
 
