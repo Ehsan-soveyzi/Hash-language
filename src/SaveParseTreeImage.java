@@ -16,7 +16,7 @@ public class SaveParseTreeImage {
     public static void main(String[] args) throws Exception {
 
         // 1. Read test code from file
-        String code = Files.readString(Path.of("src/hash_tester.txt"));
+        String code = Files.readString(Path.of("src/tester.txt"));
 
         // 2. Create lexer and parser
         CharStream input = CharStreams.fromString(code);

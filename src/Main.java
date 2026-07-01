@@ -6,7 +6,7 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        String code = Files.readString(Path.of("src/hash_tester.txt"));
+        String code = Files.readString(Path.of("src/tester.txt"));
 
         CharStream input = CharStreams.fromString(code);
 

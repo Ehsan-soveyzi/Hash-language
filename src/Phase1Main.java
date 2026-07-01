@@ -7,11 +7,13 @@ import java.nio.file.Path;
 
 public class Phase1Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // this kind of calling enable dynamic addressing of the input path and the output.
-        String inputPath = args.length >= 1 ? args[0] : "src/hash_tester.txt";
-        String outputPath = args.length >= 2 ? args[1] : "output.pml";
+        String inputPath = args.length >= 1 ? args[0] : "input/tester.txt";
+        Path outputDir = Path.of("output");
+        Files.createDirectories(outputDir);
+        String outputPath = args.length >= 2 ? args[1] : "output/output.pml";
 
         try {
             // this line get the full text of inputPath(Hash based) to String

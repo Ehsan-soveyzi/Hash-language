@@ -533,7 +533,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String s = "";
         for (int i = 1; i <= loopCounter; i++) {
             s += "ltl liveness_" + i + " {\n" +
-                    "    [](inLoop_" + i + " -> <>exitLoop_" + i + ")\n" +
+                    "    [](main@inLoop_" + i + " -> <>main@exitLoop_" + i + ")\n" +
                     "}\n\n";
         }
         return s;

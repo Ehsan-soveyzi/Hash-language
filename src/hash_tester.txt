@@ -1,7 +1,0 @@
-adad b;
-adad c;
-
-emtehan{
-    adad a = b/c;
-} gereftar (SefrBood e){} akhar {}
-adad a = b/c;
