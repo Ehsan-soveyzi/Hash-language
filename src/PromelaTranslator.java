@@ -514,13 +514,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     /* ltl methods */
     private String ltlMethods(){
-        return "\n\n" +
+        return "\n" +
                 "/*\n" +
                 "------------------------\n" +
                 " ltl checker methods \n" +
                 "------------------------\n" +
                 "*/\n\n" +
-                ltlSafety() + ltlLiveness() + ltlReachability();
+                ltlSafety() + ltlLiveness() + ltlReachability() + ltlInvariant();
     }
 
     private String ltlSafety(){
@@ -543,5 +543,11 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         return "ltl reachability {\n" +
                 "    <>endReached\n" +
                 "}\n\n";
+    }
+
+    private String ltlInvariant(){
+        return "ltl invariant {\n" +
+                "   [](x >= 0)\n" +
+                "}";
     }
 }

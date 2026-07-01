@@ -11,18 +11,7 @@ int z;
 
 active proctype main() {
     x = 10;
-    y = 0;
-    loop_start_1:
-    do
-    :: (x>0) ->
-        inLoop_1:
-        x = x-1;
-        ;
-
-    :: else -> break
-    od;
-    exitLoop_1:
-    skip;
+    y = 2;
     if
     :: (y == 0) ->
        divByZero = true;
@@ -37,7 +26,6 @@ active proctype main() {
     skip;
 }
 
-
 /*
 ------------------------
  ltl checker methods 
@@ -48,11 +36,10 @@ ltl safety {
     [] (!divByZero)
 }
 
-ltl liveness_1 {
-    [](main@inLoop_1 -> <>main@exitLoop_1)
-}
-
 ltl reachability {
     <>endReached
 }
 
+ltl invariant {
+   [](x >= 0)
+}
