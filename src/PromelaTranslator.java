@@ -46,7 +46,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "    endReached = true;\n" +
                 "    endReached_label:\n" +
                 "    skip;\n" +
-                "}\n";
+                "}\n" + ltlMethods();
     }
 
     @Override
@@ -510,5 +510,38 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 ":: else ->\n   " +
                 a + " = " + b + " / (" + c + ");\n" +
                 "fi;\n";
+    }
+
+    /* ltl methods */
+    private String ltlMethods(){
+        return "\n\n" +
+                "/*\n" +
+                "------------------------\n" +
+                " ltl checker methods \n" +
+                "------------------------\n" +
+                "*/\n\n" +
+                ltlSafety() + ltlLiveness() + ltlReachability();
+    }
+
+    private String ltlSafety(){
+        return "ltl safety {\n" +
+                "    [] (!divByZero)\n" +
+                "}\n\n";
+    }
+
+    private String ltlLiveness(){
+        String s = "";
+        for (int i = 1; i <= loopCounter; i++) {
+            s += "ltl liveness_" + i + " {\n" +
+                    "    [](inLoop_" + i + " -> <>exitLoop_" + i + ")\n" +
+                    "}\n\n";
+        }
+        return s;
+    }
+
+    private String ltlReachability(){
+        return "ltl reachability {\n" +
+                "    <>endReached\n" +
+                "}\n\n";
     }
 }
