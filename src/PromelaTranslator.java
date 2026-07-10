@@ -1,6 +1,8 @@
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class PromelaTranslator extends HashBaseVisitor<String> {
@@ -14,7 +16,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     private final Stack<String> continueLabelStack = new Stack<>();
 
-    public PromelaTranslator(){
+    public PromelaTranslator() {
         tryLabelStack.push("endReached_label");
     }
 
@@ -39,14 +41,16 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
             }
         }
 
-        return "/* Generated Promela model from Hash */\n\n" +
+        String r =  "/* Generated Promela model from Hash */\n\n" +
                 globalDecls + "\n" +
                 "active proctype main() {\n" +
                 indent(body.toString()) +
                 "    endReached = true;\n" +
                 "    endReached_label:\n" +
                 "    skip;\n" +
-                "}\n" + ltlMethods();
+                "}\n";
+        livenessFileCreation();
+        return r;
     }
 
     @Override
@@ -502,7 +506,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "fi;\n";
     }
 
-    private String checkDevByZero(String a, String b, String c){
+    private String checkDevByZero(String a, String b, String c) {
         return "if\n" +
                 ":: (" + c + " == 0) ->\n" +
                 "   divByZero = true;\n" +
@@ -512,21 +516,12 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "fi;\n";
     }
 
-    /* ltl methods */
-    private String ltlMethods(){
-        return "\n" +
-                "/*\n" +
-                "------------------------\n" +
-                " ltl checker methods \n" +
-                "------------------------\n" +
-                "*/\n\n" +
-                ltlSafety() + ltlLiveness() + ltlReachability() + ltlInvariant();
-    }
-
-    private String ltlSafety(){
-        return "ltl safety {\n" +
-                "    [] (!divByZero)\n" +
-                "}\n\n";
+    private void livenessFileCreation(){
+        try (FileWriter writer = new FileWriter("output/liveness.pml")) {
+            writer.write(ltlLiveness());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String ltlLiveness(){
@@ -537,17 +532,5 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                     "}\n\n";
         }
         return s;
-    }
-
-    private String ltlReachability(){
-        return "ltl reachability {\n" +
-                "    <>endReached\n" +
-                "}\n\n";
-    }
-
-    private String ltlInvariant(){
-        return "ltl invariant {\n" +
-                "   [](x >= 0)\n" +
-                "}";
     }
 }

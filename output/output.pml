@@ -6,40 +6,22 @@ bool nullPointer = false;
 bool noPermission = false;
 bool endReached = false;
 int x;
-int y;
-int z;
 
 active proctype main() {
-    x = 10;
-    y = 2;
-    if
-    :: (y == 0) ->
-       divByZero = true;
-       goto endReached_label;
-    :: else ->
-       skip;
-    fi;
-    z = x/y;
+    x = 2;
+    loop_start_1:
+    do
+    :: (x>=0) ->
+        inLoop_1:
+        x = x-1;
+        ;
+
+    :: else -> break
+    od;
+    exitLoop_1:
+    skip;
 
     endReached = true;
     endReached_label:
     skip;
-}
-
-/*
-------------------------
- ltl checker methods 
-------------------------
-*/
-
-ltl safety {
-    [] (!divByZero)
-}
-
-ltl reachability {
-    <>endReached
-}
-
-ltl invariant {
-   [](x >= 0)
 }

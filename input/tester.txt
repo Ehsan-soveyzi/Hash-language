@@ -1,3 +1,5 @@
-adad x = 10;
-adad y = 2;
-adad z = x / y;
+adad x = 2;
+
+ta (x >= 0) {
+	x = x - 1;
+}

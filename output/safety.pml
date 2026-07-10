@@ -1,0 +1,4 @@
+ltl safety {
+    [] (!divByZero)
+}
+
