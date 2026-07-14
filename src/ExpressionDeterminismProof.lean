@@ -89,7 +89,7 @@ theorem evalExpr_sound :
     forall {e : Expr} {s : State} {v : Int},
       EvalExpr e s v -> v = evalExpr e s := by
   intro e s v h
-  induction h with
+  induction h with -- here we use induction on proof h , here we see the EvalExpr contains which expression
   | num n s =>
       rfl
   | var x s =>
