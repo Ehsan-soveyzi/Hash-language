@@ -372,6 +372,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     private void declareGlobal(String type, String name) {
         if (declaredGlobals.add(name)) {
             globalDecls.append(type).append(" ").append(name).append(";\n");
+            if (type.equals("int")) System.out.println(globalDecls);
         }
     }
 
