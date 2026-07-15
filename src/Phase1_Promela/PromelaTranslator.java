@@ -12,6 +12,7 @@ import gen.*;
 public class PromelaTranslator extends HashBaseVisitor<String> {
 
     private final StringBuilder globalDecls = new StringBuilder();
+    private final StringBuilder invariant = new StringBuilder();
     private final Set<String> declaredGlobals = new HashSet<>();
     private final Stack<String> tryLabelStack = new Stack<>();
     private final Map<String, String> powerReplacement = new HashMap<>();
@@ -372,7 +373,10 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     private void declareGlobal(String type, String name) {
         if (declaredGlobals.add(name)) {
             globalDecls.append(type).append(" ").append(name).append(";\n");
-            if (type.equals("int")) System.out.println(globalDecls);
+            if (type.equals("int"))
+                invariant.append("ltl invariant_" + name + " {\n" +
+                        "   []("+ name +" >= 0)\n" +
+                        "}\n\n");
         }
     }
 
@@ -586,7 +590,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
     private void propertiesFileCreation(){
         try (FileWriter writer = new FileWriter("src/output/properties.ltl")) {
-            writer.write(ltlMethods() + ltlLiveness());
+            writer.write(ltlMethods() + ltlLiveness() + invariant);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -601,10 +605,6 @@ ltl safety {
 
 ltl reachability {
     <>endReached
-}
-
-ltl invariant {
-   [](x >= 0)
 }
                         
 """;

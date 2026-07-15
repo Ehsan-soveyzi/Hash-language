@@ -6,7 +6,31 @@ ltl reachability {
     <>endReached
 }
 
-ltl invariant {
+ltl liveness_1 {
+    [](main@inLoop_1 -> <>main@exitLoop_1)
+}
+
+ltl liveness_2 {
+    [](main@inLoop_2 -> <>main@exitLoop_2)
+}
+
+ltl invariant_x {
    [](x >= 0)
+}
+
+ltl invariant_y {
+   [](y >= 0)
+}
+
+ltl invariant_z {
+   [](z >= 0)
+}
+
+ltl invariant_p {
+   [](p >= 0)
+}
+
+ltl invariant_t {
+   [](t >= 0)
 }
 
