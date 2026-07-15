@@ -9,36 +9,20 @@ emtehan {
         adad t = 5;
         ta (dorost){
             age (t > 3) bood {
-                //bechap("bishtar az 3");
                 edame;
             }
             vagarna {
-                //bechap("kamtar az 3");
                 shekan;
             }
         }
-        z = x / y;
-
-        //p = z ** 2;
-
-        age (p > 50) bood {
-            //bechap(p);
-        } vagarna {
-            //bechap(z);
+        age(x / y < 12) bood {
+            z += 3;
         }
-
-        x -= 5;
-        y -= 1;
+        vagarna{
+            z += 5;
+        }
     }
 
 }
-gereftar(SefrBood e) {
-
-    //bechap("Division By Zero!");
-
-}
-akhar {
-
-    //bechap("Program Finished");
-
-}
+gereftar(SefrBood e) {}
+akhar {}
