@@ -1,4 +1,0 @@
-ltl reachability {
-    <>endReached
-}
-

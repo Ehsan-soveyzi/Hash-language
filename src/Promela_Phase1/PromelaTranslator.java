@@ -1,9 +1,13 @@
+package Promela_Phase1;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
+import gen.*;
 
 public class PromelaTranslator extends HashBaseVisitor<String> {
 
@@ -49,7 +53,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "    endReached_label:\n" +
                 "    skip;\n" +
                 "}\n";
-        livenessFileCreation();
+        propertiesFileCreation();
         return r;
     }
 
@@ -516,12 +520,30 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "fi;\n";
     }
 
-    private void livenessFileCreation(){
-        try (FileWriter writer = new FileWriter("output/liveness.pml")) {
-            writer.write(ltlLiveness());
+    private void propertiesFileCreation(){
+        try (FileWriter writer = new FileWriter("output/properties.ltl")) {
+            writer.write(ltlMethods() + ltlLiveness());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String ltlMethods(){
+        return
+"""
+ltl safety {
+    [] (!divByZero)
+}
+
+ltl reachability {
+    <>endReached
+}
+
+ltl invariant {
+   [](x >= 0)
+}
+                        
+""";
     }
 
     private String ltlLiveness(){

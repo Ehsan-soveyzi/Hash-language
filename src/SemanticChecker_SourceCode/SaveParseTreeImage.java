@@ -1,3 +1,5 @@
+package SemanticChecker_SourceCode;
+
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -10,6 +12,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+
+import gen.*;
 
 public class SaveParseTreeImage {
 

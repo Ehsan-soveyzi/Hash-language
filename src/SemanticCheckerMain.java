@@ -3,7 +3,10 @@ import org.antlr.v4.runtime.tree.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Main {
+import gen.*;
+import SemanticChecker_SourceCode.*;
+
+public class SemanticCheckerMain {
     public static void main(String[] args) throws Exception {
 
         String code = Files.readString(Path.of("src/tester.txt"));

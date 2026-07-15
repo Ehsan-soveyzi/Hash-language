@@ -1,0 +1,20 @@
+ltl safety {
+    [] (!divByZero)
+}
+
+ltl reachability {
+    <>endReached
+}
+
+ltl invariant {
+   [](x >= 0)
+}
+
+ltl liveness_1 {
+    [](main@inLoop_1 -> <>main@exitLoop_1)
+}
+
+ltl liveness_2 {
+    [](main@inLoop_2 -> <>main@exitLoop_2)
+}
+

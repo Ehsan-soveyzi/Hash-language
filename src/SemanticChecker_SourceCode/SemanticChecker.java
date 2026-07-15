@@ -1,6 +1,10 @@
+package SemanticChecker_SourceCode;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.*;
+
+import gen.*;
 
 public class SemanticChecker extends HashBaseListener {
 

@@ -1,3 +1,5 @@
+package gen;
+
 // Generated from E:/uni/term4/nazarie/antlr/prj2/Hash-language/src/Hash.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;

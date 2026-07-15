@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Phase1Main {
+import gen.*;
+import SemanticChecker_SourceCode.*;
+import Promela_Phase1.PromelaTranslator;
 
+public class PromelaMain {
     public static void main(String[] args) throws IOException {
 
         // this kind of calling enable dynamic addressing of the input path and the output.
