@@ -1,9 +1,0 @@
-adad a = 5;
-adad x = 2;
-
-ta (a >= 0) {
-a = a-1;
-ta (dorost){
-//bechap("kir");
-}
-}

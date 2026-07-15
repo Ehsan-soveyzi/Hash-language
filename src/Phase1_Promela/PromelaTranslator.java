@@ -1,4 +1,4 @@
-package Promela_Phase1;
+package Phase1_Promela;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -14,9 +14,11 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     private final StringBuilder globalDecls = new StringBuilder();
     private final Set<String> declaredGlobals = new HashSet<>();
     private final Stack<String> tryLabelStack = new Stack<>();
+    private final Map<String, String> powerReplacement = new HashMap<>();
 
     private int loopCounter = 0;
     private int tryIdx = 0;
+    private int powerCounter = 0;
 
     private final Stack<String> continueLabelStack = new Stack<>();
 
@@ -101,11 +103,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String type = mapType(ctx.type().getText());
         String name = ctx.IDENTIFIER().getText();
         String op = ctx.ASSIGNMENT().getText();
-        String expr = translateExpr(ctx.expression());
 
         declareGlobal(type, name);
 
-        String checks = generateDivisionChecks(ctx.expression());
+        String checks = generateChecks(ctx.expression());
+
+        String expr = translateExpr(ctx.expression());
+
         return checks + assignmentLine(name, op, expr);
     }
 
@@ -132,13 +136,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String op = ctx.ASSIGNMENT().getText();
         String expr = translateExpr(ctx.expression());
 
-        String checks = generateDivisionChecks(ctx.expression());
+        String checks = generateChecks(ctx.expression());
         return checks + assignmentLineWithoutSemicolon(name, op, expr) + ";\n";
     }
 
     @Override
     public String visitIfElseStatments(HashParser.IfElseStatmentsContext ctx) {
-        String checks = generateDivisionChecks(ctx.condition());
+        String checks = generateChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
 
         List<HashParser.SupportedStatementsContext> thenStatements = new ArrayList<>();
@@ -182,7 +186,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
 
         continueLabelStack.push(startLabel);
 
-        String checks = generateDivisionChecks(ctx.condition());
+        String checks = generateChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
         String body = renderBlock(ctx.supportedStatements());
 
@@ -210,7 +214,7 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         String exitLabel = "exitLoop_" + id;
 
         String init = visit(ctx.assignmentsStatemetns());
-        String checks = generateDivisionChecks(ctx.condition());
+        String checks = generateChecks(ctx.condition());
         String condition = translateExpr(ctx.condition());
         String update = visit(ctx.update()) + ";\n";
 
@@ -336,15 +340,14 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
     }
 
     private String translateExpr(ParserRuleContext ctx) {
+
         String expr = ctx.getText();
 
         expr = expr.replaceAll("\\bdorost\\b", "true");
         expr = expr.replaceAll("\\bghalat\\b", "false");
 
-        if (expr.contains("**")) {
-            throw new UnsupportedOperationException(
-                    "Power operator ** is not supported in this Promela translator yet: " + expr
-            );
+        for (Map.Entry<String,String> e : powerReplacement.entrySet()) {
+            expr = expr.replace(e.getKey(), e.getValue());
         }
 
         return expr;
@@ -465,6 +468,13 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
         };
     }
 
+    private String generateChecks(ParserRuleContext ctx){
+        String check = "";
+        check += generateDivisionChecks(ctx);
+        check += generatePowerLoops(ctx);
+        return check;
+    }
+
     private String generateDivisionChecks(ParserRuleContext ctx) {
         List<String> divisors = new ArrayList<>();
         findDivisions(ctx, divisors);
@@ -520,8 +530,61 @@ public class PromelaTranslator extends HashBaseVisitor<String> {
                 "fi;\n";
     }
 
+    private String generatePowerLoops(ParserRuleContext ctx) {
+        List<String[]> powers = new ArrayList<>();
+        findPowers(ctx, powers);
+
+        StringBuilder out = new StringBuilder();
+
+        for (String[] p : powers) {
+            int id = ++powerCounter;
+
+            String result = "pow_result_" + id;
+            String counter = "pow_counter_" + id;
+
+            powerReplacement.put(p[0] + "**" + p[1], result);
+
+            out.append(generatePowerLoop(result, counter, p[0], p[1]));
+        }
+
+        return out.toString();
+    }
+
+    private void findPowers(ParserRuleContext ctx, List<String[]> powers) {
+
+        if (ctx instanceof HashParser.PowerExpressionContext pow) {
+
+            if (pow.POWER() != null) {
+                powers.add(new String[]{
+                        pow.postfixExpression().getText(),
+                        pow.powerExpression().getText()
+                });
+            }
+        }
+
+        for (ParseTree child : ctx.children) {
+            if (child instanceof ParserRuleContext prc)
+                findPowers(prc, powers);
+        }
+    }
+
+    private String generatePowerLoop(String result,
+                                     String counter,
+                                     String base,
+                                     String exponent) {
+
+        return result + " = 1;\n" +
+                counter + " = 0;\n" +
+                "do\n" +
+                ":: (" + counter + " < " + exponent + ") ->\n" +
+                "   " + result + " = " + result + " * " + base + ";\n" +
+                "   " + counter + " = " + counter + " + 1;\n" +
+                ":: else -> break\n" +
+                "od;\n";
+    }
+
     private void propertiesFileCreation(){
-        try (FileWriter writer = new FileWriter("output/properties.ltl")) {
+        try (FileWriter writer = new FileWriter("src/output/properties.ltl")) {
             writer.write(ltlMethods() + ltlLiveness());
         } catch (IOException e) {
             e.printStackTrace();

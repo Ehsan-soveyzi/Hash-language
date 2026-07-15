@@ -1,0 +1,12 @@
+ltl safety {
+    [] (!divByZero)
+}
+
+ltl reachability {
+    <>endReached
+}
+
+ltl invariant {
+   [](x >= 0)
+}
+
