@@ -5,15 +5,15 @@ bool outOfBound = false;
 bool nullPointer = false;
 bool noPermission = false;
 bool endReached = false;
-int kir;
+int s;
 
 active proctype main() {
-    kir = 12;
+    s = 12;
     loop_start_1:
     do
-    :: (kir>0) ->
+    :: (s>0) ->
         inLoop_1:
-        kir = kir-1;
+        s = s-1;
         ;
 
     :: else -> break
