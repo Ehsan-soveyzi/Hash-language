@@ -3,7 +3,7 @@
 **Hash** is a small educational programming language designed as a course project for **Language and Automata Theory / Compiler Design**.  
 The project focuses on building a complete grammar using **ANTLR v4** and adding a semantic checking layer in **Java**.
 
-**Author:** Ehsan Soveizi & Mahdi Rashidi
+**Authors:** Ehsan Soveizi & Mahdi Rashidi
 
 ---
 
@@ -374,9 +374,9 @@ Example semantic error:
 ```text
 Semantic Error line 12: Cannot assign value of type matn to variable 'x' of type adad
 ```
-# Formal Verification
+## Formal Verification
 
-## Next level Project Overview
+### Project Workflow
 
 The main workflow is:
 
@@ -395,7 +395,7 @@ Operational semantics of a Hash subset ---> Lean 4 proofs
 The project does not implement a complete interpreter or compiler backend. Its purpose is to demonstrate how a programming language can be parsed, semantically checked, translated into a verification model, and studied through machine-checked proofs.
 
 
-### 2. Phase 1 — Hash to Promela Translation
+### Phase 1 — Hash to Promela Translation
 
 `PromelaTranslator.java` translates the verification subset of Hash into **Promela**. This subset focuses on:
 
@@ -419,7 +419,7 @@ Important translation decisions include:
 - `src/output/output.pml`
 - `src/output/properties.ltl`
 
-### 3. Phase 2 — Model Checking with SPIN
+### Phase 2 — Model Checking with SPIN
 
 The generated Promela model is checked with **SPIN** using LTL properties. The project covers:
 
@@ -433,7 +433,7 @@ The generated Promela model is checked with **SPIN** using LTL properties. The p
 
 Liveness properties are generated separately for each loop using the labels inserted during translation. Detailed commands, terminal outputs, examples, and result interpretations are available in `src/Reports/phase2_model_checker_documentation.pdf`.
 
-### 4. Phase 3 — Formal Proofs in Lean 4
+### Phase 3 — Formal Proofs in Lean 4
 
 A compact subset of Hash is given an operational semantics using expressions, statements, states, state updates, and big-step execution relations.
 
